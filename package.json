@@ -1,0 +1,19 @@
+{
+  "name": "codomain-expansion",
+  "version": "1.0.0",
+  "description": "��#\u0000 \u0000C\u0000o\u0000D\u0000o\u0000m\u0000a\u0000i\u0000n\u0000-\u0000E\u0000x\u0000p\u0000a\u0000n\u0000s\u0000i\u0000o\u0000n\u0000\r\u0000 \u0000",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "nodemon index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.19.2"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.4"
+  }
+}

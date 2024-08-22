@@ -27,6 +27,14 @@ export declare class UsersService {
         createdAt: Date;
         updatedAt: Date;
     }>;
+    findUsername(username: string): Promise<{
+        id: number;
+        username: string;
+        email: string;
+        password: string;
+        createdAt: Date;
+        updatedAt: Date;
+    }>;
     update(id: number, updateUserDto: Prisma.UserUpdateInput): Promise<{
         id: number;
         username: string;

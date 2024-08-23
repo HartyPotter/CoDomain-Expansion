@@ -8,4 +8,5 @@ export declare class AuthService {
     login(user: any): Promise<{
         accessToken: string;
     }>;
+    signUp(username: string, email: string, password: string): Promise<any>;
 }

@@ -10,6 +10,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.UsersService = void 0;
+const bcrypt = require("bcryptjs");
 const common_1 = require("@nestjs/common");
 const database_service_1 = require("../database/database.service");
 let UsersService = class UsersService {
@@ -17,14 +18,16 @@ let UsersService = class UsersService {
         this.databaseService = databaseService;
     }
     async create(createUserDto) {
-        const hashedPassword = createUserDto.password;
-        return this.databaseService.user.create({
+        const hashedPassword = await bcrypt.hash(createUserDto.password, 10);
+        const user = this.databaseService.user.create({
             data: {
                 username: createUserDto.username,
                 email: createUserDto.email,
                 password: hashedPassword
             }
         });
+        console.log("User created is: " + user);
+        return user;
     }
     async findAll() {
         return this.databaseService.user.findMany();

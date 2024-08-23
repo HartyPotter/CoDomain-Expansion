@@ -10,6 +10,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.AuthService = void 0;
+const bcrypt = require("bcryptjs");
 const common_1 = require("@nestjs/common");
 const users_service_1 = require("../users/users.service");
 const jwt_1 = require("@nestjs/jwt");
@@ -20,7 +21,7 @@ let AuthService = class AuthService {
     }
     async validateUser(username, password) {
         const user = await this.userService.findUsername(username);
-        if (user && password == user.password) {
+        if (user && await bcrypt.compare(password, user.password)) {
             const { password, ...result } = user;
             return result;
         }
@@ -31,6 +32,18 @@ let AuthService = class AuthService {
         return {
             accessToken: await this.jwtService.signAsync(payload),
         };
+    }
+    async signUp(username, email, password) {
+        const hashedPassword = await bcrypt.hash(password, 10);
+        const user = this.userService.create({
+            username: username,
+            email: email,
+            password: hashedPassword
+        });
+        if (!user) {
+            throw new Error('User creation failed');
+        }
+        return this.login(user);
     }
 };
 exports.AuthService = AuthService;

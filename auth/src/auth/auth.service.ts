@@ -10,8 +10,8 @@ export class AuthService {
 
   async validateUser(username: string, password: string): Promise<any> {
     const user = await this.userService.findUsername(username);
-    // if (user && await bcrypt.compare(password, user.password)) {
-    if (user && password == user.password) {
+    if (user && await bcrypt.compare(password, user.password)) {
+    // if (user && password == user.password) {
       const {password, ...result } = user;
       return result;
     }
@@ -25,4 +25,19 @@ export class AuthService {
     }
   }
 
+  async signUp(username: string, email: string, password: string): Promise<any> {
+    const hashedPassword = await bcrypt.hash(password, 10);
+    const user = this.userService.create({
+      username: username,
+      email: email,
+      password: hashedPassword
+    });
+
+    // Make sure the user is saved and returned with an id
+    if (!user) {
+      throw new Error('User creation failed');
+    }
+
+    return this.login(user);
+  }
 }

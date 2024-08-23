@@ -9,6 +9,9 @@ import { UsersService } from '../users/users.service';
 import { UsersController } from '../users/users.controller';
 import { DatabaseModule } from '../database/database.module';
 import { DatabaseService } from '../database/database.service';
+import { jwtConstants } from './constants';
+import { APP_GUARD } from '@nestjs/core';
+import { AuthGuard } from './auth.guard';
 
 
 @Module({
@@ -17,11 +20,15 @@ import { DatabaseService } from '../database/database.service';
     UsersModule,
     PassportModule,
     JwtModule.register({
-      secret: process.env.JWT_SECRET,
+      global: true,
+      secret: jwtConstants.secret,
       signOptions: { expiresIn: '60m' },
     })
   ],
   controllers: [AuthController, UsersController],
-  providers: [AuthService, JwtStrategy, UsersService, DatabaseService],
+  providers: [AuthService, JwtStrategy, UsersService, DatabaseService, {
+    provide: APP_GUARD, // With this in place, Nest will automatically bind AuthGuard to all endpoints.
+    useClass: AuthGuard,
+  }],
 })
 export class AuthModule {}

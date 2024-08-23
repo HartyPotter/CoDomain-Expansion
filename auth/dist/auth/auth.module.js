@@ -18,6 +18,7 @@ const users_service_1 = require("../users/users.service");
 const users_controller_1 = require("../users/users.controller");
 const database_module_1 = require("../database/database.module");
 const database_service_1 = require("../database/database.service");
+const constants_1 = require("./constants");
 let AuthModule = class AuthModule {
 };
 exports.AuthModule = AuthModule;
@@ -28,7 +29,8 @@ exports.AuthModule = AuthModule = __decorate([
             users_module_1.UsersModule,
             passport_1.PassportModule,
             jwt_1.JwtModule.register({
-                secret: process.env.JWT_SECRET,
+                global: true,
+                secret: constants_1.jwtConstants.secret,
                 signOptions: { expiresIn: '60m' },
             })
         ],

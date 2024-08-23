@@ -8,5 +8,5 @@ export declare class AuthController {
     }): Promise<{
         accessToken: string;
     }>;
-    getProtectedData(req: any): any;
+    getProfile(req: any): any;
 }

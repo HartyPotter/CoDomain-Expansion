@@ -26,12 +26,10 @@ let CodeExecutionService = class CodeExecutionService {
                     }
                 ]
             });
-            console.log("RESPONSE FROM THE ackend TRY BLOCK");
             console.log(response.data);
             return response.data;
         }
         catch (error) {
-            console.log("RESPONSE FROM THE backend CATCH BLOCK");
             console.error('Error executing code:', error);
             throw new Error(error);
         }

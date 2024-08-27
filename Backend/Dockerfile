@@ -37,6 +37,9 @@ COPY --from=build /app/dist ./dist
 # Copy the Prisma schema and other necessary files
 COPY --from=build /app/prisma ./prisma
 
+# Copy the .env file for environment variables
+COPY --from=build /app/.env.production ./.env.production
+
 # Expose the port the app runs on
 EXPOSE 3001
 

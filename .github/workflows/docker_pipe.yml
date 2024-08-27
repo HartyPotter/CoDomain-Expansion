@@ -25,15 +25,18 @@ jobs:
       # Build and push the frontend image
       - name: Build and Push Frontend Image
         run: |
+          FRONT_IMAGE_TAG=$(date +%Y%m%d%H%M)
           docker build -t hartypotter/frontend:latest ./Frontend
-          docker tag hartypotter/frontend:latest hartypotter/frontend:$(date +%Y%m%d%H%M)
+          docker tag hartypotter/frontend:latest hartypotter/frontend:$FRONT_IMAGE_TAG
           docker push hartypotter/frontend:latest
-          docker push hartypotter/frontend:$(date +%Y%m%d%H%M)
+          docker push hartypotter/frontend:$FRONT_IMAGE_TAG
+
 
       # Build and push the backend image
       - name: Build and Push Backend Image
         run: |
+          BACK_IMAGE_TAG=$(date +%Y%m%d%H%M)
           docker build -t hartypotter/backend:latest ./Backend
-          docker tag hartypotter/backend:latest hartypotter/backend:$(date +%Y%m%d%H%M)
+          docker tag hartypotter/backend:latest hartypotter/backend:$BACK_IMAGE_TAG
           docker push hartypotter/backend:latest
-          docker push hartypotter/backend:$(date +%Y%m%d%H%M)
+          docker push hartypotter/backend:$BACK_IMAGE_TAG

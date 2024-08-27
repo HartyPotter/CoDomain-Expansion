@@ -22,20 +22,32 @@ jobs:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
+      - name: Get Date
+        id: date
+        run: echo "DATE=$(date +'%Y%m%d')" >> $GITHUB_ENV
+
       # Build and push the frontend image
       - name: Build and Push Frontend Image
-        run: |
-          FRONT_IMAGE_TAG=$(date +%Y%m%d%H%M)
-          docker build -t hartypotter/frontend:latest ./Frontend
-          docker tag hartypotter/frontend:latest hartypotter/frontend:$FRONT_IMAGE_TAG
-          docker push hartypotter/frontend:latest
-          docker push hartypotter/frontend:$FRONT_IMAGE_TAG
-
+        uses: docker/build-push-action@v4
+        with:
+          push: true
+          context: ./Frontend/
+          file: Dockerfile
+          platforms: linux/amd64
+          tags: |
+            hartypotter/frontend:latest
+            hartypotter/frontend:${{ env.DATE }}
+      
       # Build and push the backend image
       - name: Build and Push Backend Image
-        run: |
-          BACK_IMAGE_TAG=$(date +%Y%m%d%H%M)
-          docker build -t hartypotter/backend:latest ./Backend
-          docker tag hartypotter/backend:latest hartypotter/backend:$BACK_IMAGE_TAG
-          docker push hartypotter/backend:latest
-          docker push hartypotter/backend:$BACK_IMAGE_TAG
+        uses: docker/build-push-action@v4
+        with:
+          push: true
+          context: ./Backend/
+          file: Dockerfile
+          platforms: linux/amd64
+          tags: |
+            hartypotter/backend:latest
+            hartypotter/backend:${{ env.DATE }}
+          secrets: |
+            "secret_1=${{ secrets.DATABASE_URL }}"

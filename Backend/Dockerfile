@@ -40,5 +40,8 @@ COPY --from=build /app/prisma ./prisma
 # Expose the port the app runs on
 EXPOSE 3001
 
+RUN --mount=type=secret,id=secret_1 \
+    sed -i "s/DATABASE_URL=/DATABASE_URL=$(cat /run/secrets/secret_1)/" .env.production
+
 # Start the application
 CMD ["npm", "run", "start:prod"]

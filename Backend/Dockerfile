@@ -13,11 +13,11 @@ RUN npm install
 # Copy the entire project to the working directory
 COPY . .
 
-# Build the NestJS project
-RUN npm run build
-
 # Generate Prisma migrations
 RUN npx prisma generate
+
+# Build the NestJS project
+RUN npm run build
 
 # Stage 2: Production
 FROM node:20-alpine as production

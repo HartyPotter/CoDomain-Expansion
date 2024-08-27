@@ -30,6 +30,7 @@ jobs:
           docker tag hartypotter/frontend:latest hartypotter/frontend:$FRONT_IMAGE_TAG
           docker push hartypotter/frontend:latest
           docker push hartypotter/frontend:$FRONT_IMAGE_TAG
+
       # Build and push the backend image
       - name: Build and Push Backend Image
         run: |

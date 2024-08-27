@@ -32,7 +32,7 @@ jobs:
         with:
           push: true
           context: ./Frontend/
-          file: Dockerfile
+          file: ./Frontend/Dockerfile
           platforms: linux/amd64
           tags: |
             hartypotter/frontend:latest
@@ -44,7 +44,7 @@ jobs:
         with:
           push: true
           context: ./Backend/
-          file: Dockerfile
+          file: ./Backend/Dockerfile
           platforms: linux/amd64
           tags: |
             hartypotter/backend:latest

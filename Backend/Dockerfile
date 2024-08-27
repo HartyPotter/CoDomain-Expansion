@@ -46,7 +46,7 @@ EXPOSE 3001
 RUN --mount=type=secret,id=secret_1 cat /run/secrets/secret_1
 
 RUN --mount=type=secret,id=secret_1 \
-    sed -i "s/DATABASE_URL=/DATABASE_URL=$(cat /run/secrets/secret_1)/" ./.env.production
+    sed -i "s/DATABASE_URL=/DATABASE_URL=$(cat /run/secrets/DATABASE_URL)/" ./.env.production
 
 # Start the application
 CMD ["npm", "run", "start:prod"]

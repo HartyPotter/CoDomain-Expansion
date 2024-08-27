@@ -1,0 +1,39 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches:
+      - docker_config
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      # Set up Docker Buildx
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      # Log in to DockerHub (or another container registry)
+      - name: Log in to DockerHub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      # Build and push the frontend image
+      - name: Build and Push Frontend Image
+        run: |
+          docker build -t hartypotter/frontend:latest ./frontend
+          docker tag hartypotter/frontend:latest hartypotter/frontend:$(date +%Y%m%d%H%M)
+          docker push hartypotter/frontend:latest
+          docker push hartypotter/frontend:$(date +%Y%m%d%H%M)
+
+      # Build and push the backend image
+      - name: Build and Push Backend Image
+        run: |
+          docker build -t hartypotter/backend:latest ./backend
+          docker tag hartypotter/backend:latest hartypotter/backend:$(date +%Y%m%d%H%M)
+          docker push hartypotter/backend:latest
+          docker push hartypotter/backend:$(date +%Y%m%d%H%M)

@@ -17,7 +17,7 @@ jobs:
 
       # Log in to DockerHub (or another container registry)
       - name: Log in to DockerHub
-        uses: docker/login-action@v2
+        uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
@@ -27,16 +27,16 @@ jobs:
         run: echo "DATE=$(date +'%Y%m%d')" >> $GITHUB_ENV
 
       # Build and push the frontend image
-      - name: Build and Push Frontend Image
-        uses: docker/build-push-action@v4
-        with:
-          push: true
-          context: ./Frontend/
-          file: ./Frontend/Dockerfile
-          platforms: linux/amd64
-          tags: |
-            hartypotter/frontend:latest
-            hartypotter/frontend:${{ env.DATE }}
+      # - name: Build and Push Frontend Image
+      #   uses: docker/build-push-action@v4
+      #   with:
+      #     push: true
+      #     context: ./Frontend/
+      #     file: ./Frontend/Dockerfile
+      #     platforms: linux/amd64
+      #     tags: |
+      #       hartypotter/frontend:latest
+      #       hartypotter/frontend:${{ env.DATE }}
       
       # Build and push the backend image
       - name: Build and Push Backend Image
@@ -50,4 +50,4 @@ jobs:
             hartypotter/backend:latest
             hartypotter/backend:${{ env.DATE }}
           secrets: |
-            "database_url=${{ secrets.DATABASE_URL }}"
+            DATABASE_URL=${{ secrets.DATABASE_URL }}

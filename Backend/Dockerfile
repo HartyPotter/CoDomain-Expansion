@@ -43,7 +43,7 @@ COPY --from=build /app/.env.production ./.env.production
 # Expose the port the app runs on
 EXPOSE 3001
 
-RUN --mount=type=secret,id=secret_1 cat /run/secrets/secret_1
+RUN --mount=type=secret,id=DATABASE_URL cat /run/secrets/secret_1
 
 RUN --mount=type=secret,id=secret_1 \
     sed -i "s/DATABASE_URL=/DATABASE_URL=$(cat /run/secrets/DATABASE_URL)/" ./.env.production

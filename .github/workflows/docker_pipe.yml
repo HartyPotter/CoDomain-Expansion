@@ -50,4 +50,4 @@ jobs:
             hartypotter/backend:latest
             hartypotter/backend:${{ env.DATE }}
           secrets: |
-            DATABASE_URL=${{ secrets.DATABASE_URL }}
+            database_url=${{ secrets.DATABASE_URL }}

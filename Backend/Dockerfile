@@ -22,6 +22,9 @@ RUN npm run build
 # Stage 2: Production
 FROM node:20-alpine as production
 
+# Setting the database url as an environment variable
+ENV DATABASE_URL=$DATABASE_URL
+
 # Set the working directory
 WORKDIR /app
 
@@ -37,23 +40,11 @@ COPY --from=build /app/dist ./dist
 # Copy the Prisma schema and other necessary files
 COPY --from=build /app/prisma ./prisma
 
-# Copy the .env file for environment variables
-COPY --from=build /app/.env.production ./.env.production
+# # Copy the .env file for environment variables
+# COPY --from=build /app/.env.production ./.env.production
 
 # Expose the port the app runs on
 EXPOSE 3001
-
-# RUN --mount=type=secret,id=database_url cat /run/secrets/database_url
-
-# RUN --mount=type=secret,id=database_url \
-#     sed -i "s/DATABASE_URL=/DATABASE_URL=$(cat /run/secrets/database_url)/" ./.env.production
-
-# RUN --mount=type=secret,id=database_url \
-#   cat /run/secrets/database_url
-
-# Add the database url as an environment variable
-RUN --mount=type=secret,id=database_url \
-    DATABASE_URL=$(cat /run/secrets/database_url)
 
 # Start the application
 CMD ["npm", "run", "start:prod"]

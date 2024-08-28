@@ -43,10 +43,13 @@ COPY --from=build /app/.env.production ./.env.production
 # Expose the port the app runs on
 EXPOSE 3001
 
-RUN --mount=type=secret,id=database_url cat /run/secrets/database_url
+# RUN --mount=type=secret,id=database_url cat /run/secrets/database_url
+
+# RUN --mount=type=secret,id=database_url \
+#     sed -i "s/DATABASE_URL=/DATABASE_URL=$(cat /run/secrets/database_url)/" ./.env.production
 
 RUN --mount=type=secret,id=database_url \
-    sed -i "s/DATABASE_URL=/DATABASE_URL=$(cat /run/secrets/database_url)/" ./.env.production
+  cat /run/secrets/DATABASE_URL
 
 # Start the application
 CMD ["npm", "run", "start:prod"]

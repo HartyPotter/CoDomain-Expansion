@@ -1,0 +1,65 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches:
+      - docker_config
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      # Set up Docker Buildx
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      # Log in to DockerHub (or another container registry)
+      - name: Log in to DockerHub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Get Date
+        id: date
+        run: echo "DATE=$(date +'%Y%m%d')" >> $GITHUB_ENV
+
+      # Build and push the frontend image
+      # - name: Build and Push Frontend Image
+      #   uses: docker/build-push-action@v4
+      #   with:
+      #     push: true
+      #     context: ./Frontend/
+      #     file: ./Frontend/Dockerfile
+      #     platforms: linux/amd64
+      #     tags: |
+      #       hartypotter/frontend:latest
+      #       hartypotter/frontend:${{ env.DATE }}
+      
+      # Build and push the backend image
+      - name: Build and Push Backend Image
+        env: 
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+        run: |
+          docker buildx build \
+            --build-arg DATABASE_URL=$DATABASE_URL \
+            --platform linux/amd64 \
+            -t hartypotter/backend:latest \
+            -t hartypotter/backend:${{ env.DATE }} \
+            --push \
+            ./Backend
+          
+      # - name: Build and Push Backend Image
+      #   uses: docker/build-push-action@v4
+      #   with:
+      #     push: true
+      #     context: ./Backend/
+      #     file: ./Backend/Dockerfile
+      #     platforms: linux/amd64
+      #     tags: |
+      #       hartypotter/backend:latest
+      #       hartypotter/backend:${{ env.DATE }}
+      #     secrets: |
+      #       database_url=${{ secrets.DATABASE_URL }}

@@ -23,6 +23,7 @@ RUN npm run build
 FROM node:20-alpine as production
 
 # Setting the database url as an environment variable
+ARG DATABASE_URL
 ENV DATABASE_URL=$DATABASE_URL
 
 # Set the working directory

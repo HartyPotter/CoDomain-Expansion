@@ -42,12 +42,14 @@ jobs:
       - name: Build and Push Backend Image
         env: 
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
-        run:
-            BACK_IMAGE_TAG=${{ env.DATE }}
-            docker build --build-arg DATABASE_URL=$DATABASE_URL -t hartypotter/backend:latest ./Backend
-            docker tag hartypotter/backend:latest hartypotter/backend:$BACK_IMAGE_TAG
-            docker push hartypotter/backend:latest
-            docker push hartypotter/backend:$BACK_IMAGE_TAG
+        run: |
+          docker buildx build \
+            --build-arg DATABASE_URL=$DATABASE_URL \
+            --platform linux/amd64 \
+            -t hartypotter/backend:latest \
+            -t hartypotter/backend:${{ env.DATE }} \
+            --push \
+            ./Backend
           
       # - name: Build and Push Backend Image
       #   uses: docker/build-push-action@v4

@@ -5,7 +5,7 @@
   "scripts": {
     "server": "npm run start --prefix Backend",
     "client": "npm run dev --prefix Frontend",
-    "start": "concurrently \"npm run server\" \"npm run client\"",
+    "start": "concurrently \"npm run server --watch\" \"npm run client --watch\"",
     "install:all": "npm install && cd frontend && npm install && cd ../backend && npm install"
   },
   "devDependencies": {
@@ -16,6 +16,7 @@
     "@nestjs/passport": "^10.0.3",
     "@prisma/client": "^5.18.0",
     "bcryptjs": "^2.4.3",
-    "passport-jwt": "^4.0.1"
+    "passport-jwt": "^4.0.1",
+    "react-router-dom": "^6.26.1"
   }
 }

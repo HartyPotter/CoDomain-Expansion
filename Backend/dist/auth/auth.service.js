@@ -19,19 +19,28 @@ let AuthService = class AuthService {
         this.userService = userService;
         this.jwtService = jwtService;
     }
-    async validateUser(username, password) {
+    async login(username, password) {
         const user = await this.userService.findUsername(username);
         if (user && await bcrypt.compare(password, user.password)) {
-            const { password, ...result } = user;
-            return result;
+            const payload = { username: user.username, sub: user.id };
+            return {
+                accessToken: await this.jwtService.signAsync(payload),
+            };
         }
         return new common_1.UnauthorizedException();
     }
-    async login(user) {
-        const payload = { username: user.username, sub: user.id };
-        return {
-            accessToken: this.jwtService.sign(payload),
-        };
+    async signUp(username, email, password) {
+        const hashedPassword = await bcrypt.hash(password, 10);
+        const user = this.userService.create({
+            username: username,
+            email: email,
+            password: hashedPassword
+        });
+        if (!user) {
+            throw new Error('User creation failed');
+        }
+        console.log("Reached Hereeeeee");
+        return this.login(username, password);
     }
 };
 exports.AuthService = AuthService;

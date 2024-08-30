@@ -42,7 +42,7 @@ COPY --from=build /app/dist ./dist
 COPY --from=build /app/prisma ./prisma
 
 # # Copy the .env file for environment variables
-# COPY --from=build /app/.env.production ./.env.production
+# COPY --from=build /app/.env ./.env
 
 # Expose the port the app runs on
 EXPOSE 3001

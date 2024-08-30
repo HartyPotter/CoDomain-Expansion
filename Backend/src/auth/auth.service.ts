@@ -8,21 +8,29 @@ export class AuthService {
   constructor(private userService: UsersService,
               private jwtService: JwtService,) {}
 
-  async validateUser(username: string, password: string): Promise<any> {
+  async login(username: string, password: string) {
     const user = await this.userService.findUsername(username);
     if (user && await bcrypt.compare(password, user.password)) {
-      const {password, ...result } = user;
-      return result;
+      const payload = {username: user.username, sub: user.id};
+      return {
+        accessToken: await this.jwtService.signAsync(payload),
+      }
     }
     return new UnauthorizedException();
   }
 
-  async login(user: any) {
-    const payload = {username: user.username, sub: user.id};
-    return {
-      accessToken: this.jwtService.sign(payload),
+  async signUp(username: string, email: string, password: string): Promise<any> {
+    const hashedPassword = await bcrypt.hash(password, 10);
+    const user = this.userService.create({
+      username: username,
+      email: email,
+      password: hashedPassword
+    });
+
+    // Make sure the user is saved and returned with an id
+    if (!user) {
+      throw new Error('User creation failed');
     }
+    return await this.login(username, password);
   }
-
-
 }

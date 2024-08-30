@@ -4,8 +4,11 @@ import { useRef, useState } from "react";
 import LanguageSelector from "./LanguageSelector";
 import { CODE_SNIPPETS } from "../constants";
 import Output from "./Output";
+import { useLocation } from "react-router-dom";
 
 const CodeEditor = () => {
+    const location = useLocation();
+    const { accessToken } = location.state || {};  // Retrieve the accessToken
     const editorRef = useRef()
     const [value, setValue] = useState("")
     const [language, setLanguage] = useState('javascript');
@@ -34,7 +37,7 @@ const CodeEditor = () => {
                     value={value}
                     onChange={(value) => setValue(value)} />
                 </Box>
-                <Output editorRef={editorRef} language={language} />
+                <Output editorRef={editorRef} language={language} accessToken={accessToken}/>
             </HStack>
         </Box>
     )

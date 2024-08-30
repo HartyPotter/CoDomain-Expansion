@@ -18,6 +18,9 @@ const users_service_1 = require("../users/users.service");
 const users_controller_1 = require("../users/users.controller");
 const database_module_1 = require("../database/database.module");
 const database_service_1 = require("../database/database.service");
+const constants_1 = require("./constants");
+const core_1 = require("@nestjs/core");
+const auth_guard_1 = require("./auth.guard");
 let AuthModule = class AuthModule {
 };
 exports.AuthModule = AuthModule;
@@ -28,12 +31,16 @@ exports.AuthModule = AuthModule = __decorate([
             users_module_1.UsersModule,
             passport_1.PassportModule,
             jwt_1.JwtModule.register({
-                secret: process.env.JWT_SECRET,
+                global: true,
+                secret: constants_1.jwtConstants.secret,
                 signOptions: { expiresIn: '60m' },
             })
         ],
         controllers: [auth_controller_1.AuthController, users_controller_1.UsersController],
-        providers: [auth_service_1.AuthService, jwt_strategy_1.JwtStrategy, users_service_1.UsersService, database_service_1.DatabaseService],
+        providers: [auth_service_1.AuthService, jwt_strategy_1.JwtStrategy, users_service_1.UsersService, database_service_1.DatabaseService, {
+                provide: core_1.APP_GUARD,
+                useClass: auth_guard_1.AuthGuard,
+            }],
     })
 ], AuthModule);
 //# sourceMappingURL=auth.module.js.map

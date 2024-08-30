@@ -1,3 +1,4 @@
+import { UnauthorizedException } from '@nestjs/common';
 import { AuthService } from './auth.service';
 export declare class AuthController {
     private authService;
@@ -5,8 +6,13 @@ export declare class AuthController {
     login(body: {
         username: string;
         password: string;
-    }): Promise<{
+    }): Promise<UnauthorizedException | {
         accessToken: string;
     }>;
-    getProtectedData(req: any): any;
+    register(body: {
+        username: string;
+        email: string;
+        password: string;
+    }): Promise<any>;
+    getProfile(req: any): any;
 }

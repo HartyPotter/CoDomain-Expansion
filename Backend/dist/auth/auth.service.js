@@ -39,8 +39,7 @@ let AuthService = class AuthService {
         if (!user) {
             throw new Error('User creation failed');
         }
-        console.log("Reached Hereeeeee");
-        return this.login(username, password);
+        return await this.login(username, password);
     }
 };
 exports.AuthService = AuthService;

@@ -1,0 +1,2 @@
+- Remove constants.ts from Repo
+- Avoid Passing Authentication Token through React Components (See LoginForm.jsx)

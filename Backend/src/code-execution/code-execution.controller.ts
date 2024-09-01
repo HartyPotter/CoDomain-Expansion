@@ -7,6 +7,8 @@ export class CodeExecutionController {
 
   @Post()
   async executeCode(@Body('sourceCode') code: string, @Body('language') lang: string, @Body('version') version: string) {
-    return this.codeExecutionService.executeCode(code, lang, version);
+    const result = await this.codeExecutionService.executeCode(code, lang, version);
+    console.log("RESULT FROM endpoint: ", result);
+    return result;
   }
 }

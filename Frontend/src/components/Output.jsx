@@ -23,16 +23,16 @@ const Output = ({ editorRef, language, accessToken }) => {
             }
             const { data: result } = await axios.post("http://localhost:3001/execute", { language, version, sourceCode}, config);
             console.log("RESPONSE FROM THE frontend TRY BLOCK //")
-            setOutput(result.run.output.split('\n'));
-            if (result.run.stderr) {
-                setError(true);
-                toast({
-                    title: "Error compiling the code",
-                    description: "Check the code for errors.",
-                    status: "error",
-                    duration: 6000,
-                })
-            } else setError(false);
+            setOutput(result.output.split('\n'));
+            // if (result.run.stderr) {
+            //     setError(true);
+            //     toast({
+            //         title: "Error compiling the code",
+            //         description: "Check the code for errors.",
+            //         status: "error",
+            //         duration: 6000,
+            //     })
+            // } else setError(false);
 
         } catch (error){
 

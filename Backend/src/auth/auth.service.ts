@@ -11,6 +11,9 @@ export class AuthService {
   private blacklist = new Set<string>();
 
   async login(username: string, password: string) {
+    if (!username || !password) {
+      throw new Error('Please complete all the required fields');
+    }
     const user = await this.userService.findUsername(username);
     if (user && await bcrypt.compare(password, user.password)) {
       const payload = {username: user.username, sub: user.id};

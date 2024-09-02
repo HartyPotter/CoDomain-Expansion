@@ -5,10 +5,12 @@ import { Request } from 'express';
 import { AuthService } from './auth.service';
 import { Reflector } from '@nestjs/core';
 import { IS_PUBLIC_KEY } from './decorators/public.decorator';
+import {TokenBlacklistService} from "./blacklist";
 
 @Injectable()
 export class AuthGuard implements CanActivate {
-  constructor(private jwtService: JwtService, private reflector: Reflector) {}
+  constructor(private jwtService: JwtService, private reflector: Reflector,
+              private tokenBlacklistService: TokenBlacklistService) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const isPublic = this.reflector.getAllAndOverride<boolean>(IS_PUBLIC_KEY, [
@@ -22,10 +24,18 @@ export class AuthGuard implements CanActivate {
 
     const request = context.switchToHttp().getRequest();
     const token = this.extractTokenFromHeader(request);
+    console.log("TOKENNNNNNN: ", token)
     if (!token) {
       throw new UnauthorizedException();
     }
+    if (this.tokenBlacklistService.isBlacklisted(token)) {
+      throw new UnauthorizedException();
+    }
+    else {
+      console.log("Token is not blacklisted");
+    }
     try {
+
       const payload = await this.jwtService.verifyAsync(
         token,
         {
@@ -35,6 +45,7 @@ export class AuthGuard implements CanActivate {
       // 💡 We're assigning the payload to the request object here
       // so that we can access it in our route handlers
       request['user'] = payload;
+      request['accessToken'] = token;
     }
     catch {
       throw new UnauthorizedException();

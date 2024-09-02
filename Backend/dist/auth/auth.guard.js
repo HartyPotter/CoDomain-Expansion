@@ -15,10 +15,12 @@ const jwt_1 = require("@nestjs/jwt");
 const constants_1 = require("./constants");
 const core_1 = require("@nestjs/core");
 const public_decorator_1 = require("./decorators/public.decorator");
+const blacklist_1 = require("./blacklist");
 let AuthGuard = class AuthGuard {
-    constructor(jwtService, reflector) {
+    constructor(jwtService, reflector, tokenBlacklistService) {
         this.jwtService = jwtService;
         this.reflector = reflector;
+        this.tokenBlacklistService = tokenBlacklistService;
     }
     async canActivate(context) {
         const isPublic = this.reflector.getAllAndOverride(public_decorator_1.IS_PUBLIC_KEY, [
@@ -30,14 +32,22 @@ let AuthGuard = class AuthGuard {
         }
         const request = context.switchToHttp().getRequest();
         const token = this.extractTokenFromHeader(request);
+        console.log("TOKENNNNNNN: ", token);
         if (!token) {
             throw new common_1.UnauthorizedException();
+        }
+        if (this.tokenBlacklistService.isBlacklisted(token)) {
+            throw new common_1.UnauthorizedException();
+        }
+        else {
+            console.log("Token is not blacklisted");
         }
         try {
             const payload = await this.jwtService.verifyAsync(token, {
                 secret: constants_1.jwtConstants.secret
             });
             request['user'] = payload;
+            request['accessToken'] = token;
         }
         catch {
             throw new common_1.UnauthorizedException();
@@ -52,6 +62,7 @@ let AuthGuard = class AuthGuard {
 exports.AuthGuard = AuthGuard;
 exports.AuthGuard = AuthGuard = __decorate([
     (0, common_1.Injectable)(),
-    __metadata("design:paramtypes", [jwt_1.JwtService, core_1.Reflector])
+    __metadata("design:paramtypes", [jwt_1.JwtService, core_1.Reflector,
+        blacklist_1.TokenBlacklistService])
 ], AuthGuard);
 //# sourceMappingURL=auth.guard.js.map

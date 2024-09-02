@@ -1,17 +1,21 @@
-import { Box, HStack } from "@chakra-ui/react";
+import {Box, Button, HStack} from "@chakra-ui/react";
 import { Editor } from "@monaco-editor/react";
 import { useRef, useState } from "react";
 import LanguageSelector from "./LanguageSelector";
 import { CODE_SNIPPETS } from "../constants";
 import Output from "./Output";
 import { useLocation } from "react-router-dom";
+import {useNavigate} from "react-router-dom";
+import axios from "axios";
+
 
 const CodeEditor = () => {
+    const navigate = useNavigate();
     const location = useLocation();
     const { accessToken } = location.state || {};  // Retrieve the accessToken
     const editorRef = useRef()
     const [value, setValue] = useState("")
-    const [language, setLanguage] = useState('javascript');
+    const [language, setLanguage] = useState('javascript')
 
     const onMount = (editor) => {
         editorRef.current = editor;
@@ -21,7 +25,19 @@ const CodeEditor = () => {
     const onSelect = (language) => {
         setLanguage(language);
         setValue(CODE_SNIPPETS[language]);
-      };
+    };
+
+    const handleLogout = async() => {
+        console.log("1");
+        await axios.post("http://localhost:3001/auth/logout", {}, {
+            headers: {
+                Authorization: `Bearer ${accessToken}`
+            }
+        })
+        localStorage.removeItem('accessToken');
+        console.log("2");
+        navigate("/");
+    }
 
     return (
         <Box>
@@ -39,6 +55,7 @@ const CodeEditor = () => {
                 </Box>
                 <Output editorRef={editorRef} language={language} accessToken={accessToken}/>
             </HStack>
+            <Button colorScheme="blue" onClick={handleLogout}>Logout</Button>
         </Box>
     )
 }

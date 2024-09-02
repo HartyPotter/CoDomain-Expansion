@@ -12,7 +12,7 @@ import { DatabaseService } from '../database/database.service';
 import { jwtConstants } from './constants';
 import { APP_GUARD } from '@nestjs/core';
 import { AuthGuard } from './auth.guard';
-
+import { TokenBlacklistService } from "./blacklist";
 
 @Module({
   imports: [
@@ -26,7 +26,7 @@ import { AuthGuard } from './auth.guard';
     })
   ],
   controllers: [AuthController, UsersController],
-  providers: [AuthService, JwtStrategy, UsersService, DatabaseService, {
+  providers: [AuthService, JwtStrategy, UsersService, DatabaseService, TokenBlacklistService, {
     provide: APP_GUARD, // With this in place, Nest will automatically bind AuthGuard to all endpoints.
     useClass: AuthGuard,
   }],

@@ -42,6 +42,13 @@ let UsersService = class UsersService {
             }
         });
     }
+    async findEmail(email) {
+        return this.databaseService.user.findUnique({
+            where: {
+                email,
+            }
+        });
+    }
     async update(id, updateUserDto) {
         return this.databaseService.user.update({
             where: {

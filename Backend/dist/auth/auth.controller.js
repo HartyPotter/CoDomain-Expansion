@@ -16,9 +16,11 @@ exports.AuthController = void 0;
 const common_1 = require("@nestjs/common");
 const auth_service_1 = require("./auth.service");
 const public_decorator_1 = require("./decorators/public.decorator");
+const blacklist_1 = require("./blacklist");
 let AuthController = class AuthController {
-    constructor(authService) {
+    constructor(authService, tokenBlacklistService) {
         this.authService = authService;
+        this.tokenBlacklistService = tokenBlacklistService;
     }
     async login(body) {
         return await this.authService.login(body.username, body.password);
@@ -26,6 +28,10 @@ let AuthController = class AuthController {
     async register(body) {
         console.log("Received Register Request");
         return this.authService.signUp(body.username, body.email, body.password);
+    }
+    async logout(req) {
+        this.tokenBlacklistService.addToBlacklist(req.accessToken);
+        return { message: 'Logged Out' };
     }
     getProfile(req) {
         return req.user.username;
@@ -51,6 +57,13 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], AuthController.prototype, "register", null);
 __decorate([
+    (0, common_1.Post)('logout'),
+    __param(0, (0, common_1.Request)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", Promise)
+], AuthController.prototype, "logout", null);
+__decorate([
     (0, common_1.Get)('profile'),
     __param(0, (0, common_1.Request)()),
     __metadata("design:type", Function),
@@ -59,6 +72,7 @@ __decorate([
 ], AuthController.prototype, "getProfile", null);
 exports.AuthController = AuthController = __decorate([
     (0, common_1.Controller)('auth'),
-    __metadata("design:paramtypes", [auth_service_1.AuthService])
+    __metadata("design:paramtypes", [auth_service_1.AuthService,
+        blacklist_1.TokenBlacklistService])
 ], AuthController);
 //# sourceMappingURL=auth.controller.js.map

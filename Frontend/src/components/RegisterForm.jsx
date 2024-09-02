@@ -4,7 +4,7 @@ import axios from 'axios';
 import { useState } from 'react';
 import CodeEditor from "./CodeEditor.jsx";
 
-function LoginForm() {
+function RegisterForm() {
     const navigate = useNavigate();
     const [username, setUsername] = useState('');
     const [email, setEmail] = useState('');
@@ -16,7 +16,6 @@ function LoginForm() {
             const {data : result} = await axios.post("http://localhost:3001/auth/register", {username, email, password});
             // Redirect to Code Editor
             navigate("/code-editor", { state: {accessToken: result.accessToken} });
-
         }
         catch (error) {
             console.log('SignUp Failed: ', error);
@@ -35,7 +34,7 @@ function LoginForm() {
                 <Button colorScheme="blue" onClick={handleRegister}>
                     Register
                 </Button>
-                <Button variant="link">
+                <Button variant="link" onClick={() => navigate("/register")}>
                     Already have an account? Login
                 </Button>
             </VStack>
@@ -43,4 +42,4 @@ function LoginForm() {
     );
 }
 
-export default LoginForm;
+export default RegisterForm;

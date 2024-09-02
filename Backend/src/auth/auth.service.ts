@@ -8,6 +8,8 @@ export class AuthService {
   constructor(private userService: UsersService,
               private jwtService: JwtService,) {}
 
+  private blacklist = new Set<string>();
+
   async login(username: string, password: string) {
     const user = await this.userService.findUsername(username);
     if (user && await bcrypt.compare(password, user.password)) {
@@ -20,6 +22,22 @@ export class AuthService {
   }
 
   async signUp(username: string, email: string, password: string): Promise<any> {
+
+    // Check for empty fields
+    if (!username || !email || !password ) {
+      throw new Error('Please complete all the required fields');
+    }
+
+    // Check for used usernames
+    if (await this.userService.findUsername(username)) {
+      throw new Error('This username is already taken');
+    }
+
+    // Check for registered emails
+    if (await this.userService.findEmail(email)) {
+      throw new Error('This email is already registered');
+    }
+
     const hashedPassword = await bcrypt.hash(password, 10);
     const user = this.userService.create({
       username: username,

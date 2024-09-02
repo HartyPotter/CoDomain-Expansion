@@ -21,6 +21,7 @@ const database_service_1 = require("../database/database.service");
 const constants_1 = require("./constants");
 const core_1 = require("@nestjs/core");
 const auth_guard_1 = require("./auth.guard");
+const blacklist_1 = require("./blacklist");
 let AuthModule = class AuthModule {
 };
 exports.AuthModule = AuthModule;
@@ -37,7 +38,7 @@ exports.AuthModule = AuthModule = __decorate([
             })
         ],
         controllers: [auth_controller_1.AuthController, users_controller_1.UsersController],
-        providers: [auth_service_1.AuthService, jwt_strategy_1.JwtStrategy, users_service_1.UsersService, database_service_1.DatabaseService, {
+        providers: [auth_service_1.AuthService, jwt_strategy_1.JwtStrategy, users_service_1.UsersService, database_service_1.DatabaseService, blacklist_1.TokenBlacklistService, {
                 provide: core_1.APP_GUARD,
                 useClass: auth_guard_1.AuthGuard,
             }],

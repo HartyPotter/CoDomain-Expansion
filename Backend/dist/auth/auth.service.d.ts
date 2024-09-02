@@ -5,6 +5,7 @@ export declare class AuthService {
     private userService;
     private jwtService;
     constructor(userService: UsersService, jwtService: JwtService);
+    private blacklist;
     login(username: string, password: string): Promise<UnauthorizedException | {
         accessToken: string;
     }>;

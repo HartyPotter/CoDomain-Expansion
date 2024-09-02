@@ -20,9 +20,7 @@ let CodeExecutionController = class CodeExecutionController {
         this.codeExecutionService = codeExecutionService;
     }
     async executeCode(code, lang, version) {
-        const result = await this.codeExecutionService.executeCode(code, lang, version);
-        console.log("RESULT FROM endpoint: ", result);
-        return result;
+        return await this.codeExecutionService.executeCode(code, lang, version);
     }
 };
 exports.CodeExecutionController = CodeExecutionController;

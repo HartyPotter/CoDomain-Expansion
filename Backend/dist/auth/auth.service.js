@@ -18,6 +18,7 @@ let AuthService = class AuthService {
     constructor(userService, jwtService) {
         this.userService = userService;
         this.jwtService = jwtService;
+        this.blacklist = new Set();
     }
     async login(username, password) {
         const user = await this.userService.findUsername(username);
@@ -30,6 +31,15 @@ let AuthService = class AuthService {
         return new common_1.UnauthorizedException();
     }
     async signUp(username, email, password) {
+        if (!username || !email || !password) {
+            throw new Error('Please complete all the required fields');
+        }
+        if (await this.userService.findUsername(username)) {
+            throw new Error('This username is already taken');
+        }
+        if (await this.userService.findEmail(email)) {
+            throw new Error('This email is already registered');
+        }
         const hashedPassword = await bcrypt.hash(password, 10);
         const user = this.userService.create({
             username: username,

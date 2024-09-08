@@ -44,19 +44,34 @@ export class CodeExecutionService {
     //   console.error('Error executing code:', error);
     //   throw new Error(error);
     // }
-
+    
+    const volume = await docker.createVolume({
+    	Name: `volume_1`,
+    	Driver: 'local',
+    })
+    
     const container = await docker.createContainer({
-      Image: "python:3-slim",
-      Tty: false,
-      Cmd: ['python', '-c', code]
-    });
+  Image: "python:3-slim",
+  Tty: false,
+  Cmd: ['bash', '-c', `
+    cat <<EOF > /app/code.py
+${code}
+EOF
+    python /app/code.py`],
+  HostConfig: {
+    Binds: [`${volume.Name}:/app`],  // Bind the volume to `/app`
+  },
+});
 
     await container.start();
+    
     const logsStream = await container.logs({
       follow: true,
       stdout: true,
       stderr: true,
     });
+    
+    
     const logs = await getStreamData(logsStream);
     console.log(logs);
 

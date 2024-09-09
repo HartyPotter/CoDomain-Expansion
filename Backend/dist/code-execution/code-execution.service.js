@@ -23,10 +23,21 @@ async function getStreamData(stream) {
 }
 let CodeExecutionService = class CodeExecutionService {
     async executeCode(code, language, version) {
+        const volume = await docker.createVolume({
+            Name: `volume_1`,
+            Driver: 'local',
+        });
         const container = await docker.createContainer({
             Image: "python:3-slim",
             Tty: false,
-            Cmd: ['python', '-c', code]
+            Cmd: ['bash', '-c', `
+    cat <<EOF > /app/code.py
+${code}
+EOF
+    python /app/code.py`],
+            HostConfig: {
+                Binds: [`${volume.Name}:/app`],
+            },
         });
         await container.start();
         const logsStream = await container.logs({

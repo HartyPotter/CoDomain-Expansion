@@ -5,4 +5,7 @@ export declare class CodeExecutionController {
     executeCode(code: string, lang: string, version: string): Promise<{
         output: string;
     }>;
+    executeTerminal(command: string): Promise<{
+        output: string;
+    }>;
 }

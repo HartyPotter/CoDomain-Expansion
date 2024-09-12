@@ -24,6 +24,12 @@ let CodeExecutionController = class CodeExecutionController {
         console.log("RESULT FROM endpoint: ", result);
         return result;
     }
+    async executeTerminal(command) {
+        console.log("SSSS: ", command);
+        const result = await this.codeExecutionService.executeTerminal(command);
+        console.log("RESULT FROM endpoint: ", result);
+        return result;
+    }
 };
 exports.CodeExecutionController = CodeExecutionController;
 __decorate([
@@ -35,6 +41,13 @@ __decorate([
     __metadata("design:paramtypes", [String, String, String]),
     __metadata("design:returntype", Promise)
 ], CodeExecutionController.prototype, "executeCode", null);
+__decorate([
+    (0, common_1.Post)('terminal'),
+    __param(0, (0, common_1.Body)('command')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", Promise)
+], CodeExecutionController.prototype, "executeTerminal", null);
 exports.CodeExecutionController = CodeExecutionController = __decorate([
     (0, common_1.Controller)('execute'),
     __metadata("design:paramtypes", [code_execution_service_1.CodeExecutionService])

@@ -11,4 +11,12 @@ export class CodeExecutionController {
     console.log("RESULT FROM endpoint: ", result);
     return result;
   }
+
+  @Post('terminal')
+  async executeTerminal(@Body('command') command: string) {
+    console.log("SSSS: ", command);
+    const result = await this.codeExecutionService.executeTerminal(command);
+    console.log("RESULT FROM endpoint: ", result);
+    return result;
+  }
 }

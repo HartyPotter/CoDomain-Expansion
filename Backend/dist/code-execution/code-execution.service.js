@@ -21,34 +21,65 @@ async function getStreamData(stream) {
     }
     return Buffer.concat(chunks).toString();
 }
+let container = null;
+let volume = null;
+let logs = null;
+let exec = null;
+let stream = null;
 let CodeExecutionService = class CodeExecutionService {
-    async executeCode(code, language, version) {
-        const volume = await docker.createVolume({
+    async startContainer() {
+        console.log("STARTED CONTAINER\n");
+        volume = await docker.createVolume({
             Name: `volume_1`,
             Driver: 'local',
         });
-        const container = await docker.createContainer({
+        container = await docker.createContainer({
             Image: "python:3-slim",
-            Tty: false,
-            Cmd: ['bash', '-c', `
-    cat <<EOF > /app/code.py
-${code}
-EOF
-    python /app/code.py`],
+            Tty: true,
             HostConfig: {
                 Binds: [`${volume.Name}:/app`],
             },
         });
         await container.start();
-        const logsStream = await container.logs({
-            follow: true,
-            stdout: true,
-            stderr: true,
+        const exec = await container.exec({
+            Cmd: ['/bin/bash'],
+            AttachStdin: true,
+            AttachStdout: true,
+            AttachStderr: true,
+            Tty: true,
         });
-        const logs = await getStreamData(logsStream);
-        console.log(logs);
-        await container.remove();
-        return { output: logs };
+        stream = await exec.start();
+    }
+    async executeCode(code, language, version) {
+        if (!container)
+            await this.startContainer();
+        console.log("Why Reaching Here????\n");
+        const exec = await container.exec({
+            Cmd: ['bash', '-c', `
+    cat <<EOF > /app/code.py
+${code}
+EOF
+    python /app/code.py`],
+            AttachStdin: true,
+            AttachStdout: true,
+            AttachStderr: true,
+            Tty: true,
+        });
+        const stream = await exec.start();
+        const output = await getStreamData(stream);
+        return { output: output.toString() };
+    }
+    async executeTerminal(command) {
+        if (!container)
+            await this.startContainer();
+        if (!stream)
+            console.log("Stream not initialized");
+        console.log("We're here!!!!\n");
+        console.log("Command: ", command);
+        stream.stdin.write(`${command}\n`);
+        const output = await getStreamData(stream);
+        console.log("Output: ", output);
+        return { output: output.toString() };
     }
 };
 exports.CodeExecutionService = CodeExecutionService;

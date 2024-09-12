@@ -17,12 +17,45 @@ async function getStreamData(stream) {
   return Buffer.concat(chunks).toString();
 }
 
+let container = null;
+let volume = null;
+let logs = null;
+let exec = null;
+let stream = null;
 
 @Injectable()
 export class CodeExecutionService {
   // private readonly pistonAPI = axios.create({
   //   baseURL: "https://emkc.org/api/v2/piston",
   // });
+
+
+    async startContainer() {
+        console.log("STARTED CONTAINER\n");
+        volume = await docker.createVolume({
+            Name: `volume_1`,
+            Driver: 'local',
+        })
+
+        container = await docker.createContainer({
+            Image: "python:3-slim",
+            Tty: true,
+            HostConfig: {
+                Binds: [`${volume.Name}:/app`],  // Bind the volume to `/app`
+            },
+        });
+
+        await container.start();
+
+        const exec = await container.exec({
+            Cmd: ['/bin/bash'],
+            AttachStdin: true,
+            AttachStdout: true,
+            AttachStderr: true,
+            Tty: true,  // TTY for interactive terminal
+        })
+        stream = await exec.start();
+    }
 
   async executeCode(code: string, language: string, version: string): Promise<{ output: string }> {
     // try {
@@ -44,38 +77,56 @@ export class CodeExecutionService {
     //   console.error('Error executing code:', error);
     //   throw new Error(error);
     // }
-    
-    const volume = await docker.createVolume({
-    	Name: `volume_1`,
-    	Driver: 'local',
-    })
-    
-    const container = await docker.createContainer({
-  Image: "python:3-slim",
-  Tty: false,
-  Cmd: ['bash', '-c', `
+
+    // await container.start();
+
+
+    // const logsStream = await container.logs({
+    //   follow: true,
+    //   stdout: true,
+    //   stderr: true,
+    // });
+
+      if (!container)
+          await this.startContainer();
+
+      console.log("Why Reaching Here????\n");
+    const exec = await container.exec({
+        Cmd: ['bash', '-c', `
     cat <<EOF > /app/code.py
 ${code}
 EOF
     python /app/code.py`],
-  HostConfig: {
-    Binds: [`${volume.Name}:/app`],  // Bind the volume to `/app`
-  },
-});
+        AttachStdin: true,
+        AttachStdout: true,
+        AttachStderr: true,
+        Tty: true,  // TTY for interactive terminal
+    })
+    const stream = await exec.start();
+    const output = await getStreamData(stream); // Capture the output stream
+      return { output: output.toString() };
 
-    await container.start();
-    
-    const logsStream = await container.logs({
-      follow: true,
-      stdout: true,
-      stderr: true,
-    });
-    
-    
-    const logs = await getStreamData(logsStream);
-    console.log(logs);
+    // const logs = await getStreamData(logsStream);
+    // console.log(logs);
+    //
+    // await container.remove();
+  }
 
-    await container.remove();
-    return { output: logs };
+
+  async executeTerminal(command : string): Promise<{ output: string }> {
+        if (!container)
+            await this.startContainer();
+
+        if (!stream)
+            console.log("Stream not initialized");
+
+        console.log("We're here!!!!\n");
+
+      // console.log("Stream: ", stream)
+      console.log("Command: ", command);
+      stream.stdin.write(`${command}\n`);
+      const output = await getStreamData(stream); // Capture the output stream
+      console.log("Output: ", output)
+      return { output: output.toString() };
   }
 }

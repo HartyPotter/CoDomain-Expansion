@@ -8,10 +8,13 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.CodeExecutionService = void 0;
 const common_1 = require("@nestjs/common");
-const Docker = require('dockerode');
+const child_process_1 = require("child_process");
+const ws_1 = require("ws");
+const Docker = require('simple-dockerode');
 const docker = new Docker();
 const { PassThrough } = require('stream');
 const util = require('util');
+const wss = new ws_1.WebSocketServer({ port: 3000 });
 async function getStreamData(stream) {
     const passThrough = new PassThrough();
     stream.pipe(passThrough);
@@ -34,7 +37,7 @@ let CodeExecutionService = class CodeExecutionService {
             Driver: 'local',
         });
         container = await docker.createContainer({
-            Image: "python:3-slim",
+            Image: "python:3.9-slim",
             Tty: true,
             HostConfig: {
                 Binds: [`${volume.Name}:/app`],
@@ -70,16 +73,26 @@ EOF
         return { output: output.toString() };
     }
     async executeTerminal(command) {
-        if (!container)
-            await this.startContainer();
-        if (!stream)
-            console.log("Stream not initialized");
-        console.log("We're here!!!!\n");
-        console.log("Command: ", command);
-        stream.stdin.write(`${command}\n`);
-        const output = await getStreamData(stream);
-        console.log("Output: ", output);
-        return { output: output.toString() };
+        wss.on('connection', (ws) => {
+            const docker_process = (0, child_process_1.spawn)('docker', ['run', '-i', 'python:3.9-slim', 'bash']);
+            docker_process.stdout.on('data', (data) => {
+                ws.send(data.toString());
+            });
+            docker_process.stderr.on('data', (data) => {
+                ws.send(data.toString());
+            });
+            ws.on('message', (message) => {
+                docker_process.stdin.write(message.toString());
+            });
+            docker_process.on('close', (code) => {
+                console.log(`Docker process exited with code ${code}`);
+                ws.close();
+            });
+            ws.on('close', () => {
+                console.log('WebSocket closed');
+                docker_process.kill();
+            });
+        });
     }
 };
 exports.CodeExecutionService = CodeExecutionService;

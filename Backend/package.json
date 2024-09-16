@@ -26,7 +26,7 @@
     "@prisma/client": "^5.18.0",
     "axios": "^1.7.4",
     "bcryptjs": "^2.4.3",
-    "dockerode": "^4.0.2",
+    "simple-dockerode": "0.2.2",
     "prisma": "^5.18.0",
     "reflect-metadata": "^0.2.0",
     "rxjs": "^7.8.1"

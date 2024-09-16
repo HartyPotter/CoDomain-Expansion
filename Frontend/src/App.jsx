@@ -3,6 +3,7 @@ import {BrowserRouter, Routes, Route, Navigate, useNavigate} from 'react-router-
 import LoginForm from './components/LoginForm';
 import CodeEditor from "./components/CodeEditor.jsx";
 import RegisterForm from './components/RegisterForm';
+import TerminalComponent from "./components/Terminal.jsx";
 
 function App() {
     return (
@@ -11,7 +12,7 @@ function App() {
             <Routes>
                 <Route path="/" element={<LoginForm />} />
                 <Route path="/register" element={<RegisterForm />} />
-                <Route path="/code-editor" element={<CodeEditor/>} />
+                <Route path="/code-editor" element={<TerminalComponent/>} />
             </Routes>
         </BrowserRouter>
     </Box>

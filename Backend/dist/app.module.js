@@ -13,6 +13,7 @@ const code_execution_service_1 = require("./code-execution/code-execution.servic
 const users_module_1 = require("./users/users.module");
 const database_module_1 = require("./database/database.module");
 const auth_module_1 = require("./auth/auth.module");
+const websocket_service_1 = require("./code-execution/websocket.service");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
@@ -20,7 +21,7 @@ exports.AppModule = AppModule = __decorate([
     (0, common_1.Module)({
         imports: [auth_module_1.AuthModule, database_module_1.DatabaseModule, users_module_1.UsersModule],
         controllers: [code_execution_controller_1.CodeExecutionController],
-        providers: [code_execution_service_1.CodeExecutionService],
+        providers: [code_execution_service_1.CodeExecutionService, websocket_service_1.WebSocketService],
     })
 ], AppModule);
 //# sourceMappingURL=app.module.js.map

@@ -1,23 +1,27 @@
-import { UnauthorizedException } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { TokenBlacklistService } from "./blacklist";
+import { Response } from 'express';
+import { RedisUser } from './jwt.strategy';
+interface RequestWithUser extends Request {
+    user: RedisUser;
+}
 export declare class AuthController {
     private authService;
-    private tokenBlacklistService;
-    constructor(authService: AuthService, tokenBlacklistService: TokenBlacklistService);
-    login(body: {
-        username: string;
-        password: string;
-    }): Promise<UnauthorizedException | {
-        accessToken: string;
-    }>;
+    constructor(authService: AuthService);
     register(body: {
+        first_name: string;
+        last_name: string;
+        age: number;
         username: string;
         email: string;
         password: string;
     }): Promise<any>;
-    logout(req: any): Promise<{
+    login(body: {
+        username: string;
+        password: string;
+    }, res: Response): Promise<Response<any, Record<string, any>>>;
+    logout(req: Request): Promise<{
         message: string;
     }>;
-    getProfile(req: any): any;
+    getProfile(req: RequestWithUser): Promise<RedisUser>;
 }
+export {};

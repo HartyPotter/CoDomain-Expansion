@@ -9,30 +9,33 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.JwtAuthGuard = void 0;
+exports.RedisService = void 0;
 const common_1 = require("@nestjs/common");
-const passport_1 = require("@nestjs/passport");
-const core_1 = require("@nestjs/core");
-const public_decorator_1 = require("./decorators/public.decorator");
-let JwtAuthGuard = class JwtAuthGuard extends (0, passport_1.AuthGuard)('jwt') {
-    constructor(reflector) {
-        super();
-        this.reflector = reflector;
+const redis_1 = require("redis");
+require("dotenv/config");
+let RedisService = class RedisService {
+    constructor() {
+        this.client = (0, redis_1.createClient)({
+            password: process.env.REDIS_PW,
+            socket: {
+                host: process.env.REDIS_HOST,
+                port: Number(process.env.REDIS_PORT)
+            }
+        });
     }
-    async canActivate(context) {
-        const isPublic = this.reflector.getAllAndOverride(public_decorator_1.IS_PUBLIC_KEY, [
-            context.getHandler(),
-            context.getClass(),
-        ]);
-        if (isPublic) {
-            return true;
-        }
-        return super.canActivate(context);
+    async onModuleInit() {
+        await this.client.connect();
+    }
+    async onModuleDestroy() {
+        await this.client.disconnect();
+    }
+    getClient() {
+        return this.client;
     }
 };
-exports.JwtAuthGuard = JwtAuthGuard;
-exports.JwtAuthGuard = JwtAuthGuard = __decorate([
+exports.RedisService = RedisService;
+exports.RedisService = RedisService = __decorate([
     (0, common_1.Injectable)(),
-    __metadata("design:paramtypes", [core_1.Reflector])
-], JwtAuthGuard);
-//# sourceMappingURL=jwt-auth.guard.js.map
+    __metadata("design:paramtypes", [])
+], RedisService);
+//# sourceMappingURL=redis.service.js.map

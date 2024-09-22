@@ -13,7 +13,7 @@ let TokenBlacklistService = class TokenBlacklistService {
         this.blacklist = new Set();
     }
     addToBlacklist(token) {
-        this.blacklist.add(token);
+        this.blacklist.add(toen);
     }
     isBlacklisted(token) {
         return this.blacklist.has(token);

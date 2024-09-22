@@ -14,36 +14,42 @@ const bcrypt = require("bcryptjs");
 const common_1 = require("@nestjs/common");
 const users_service_1 = require("../users/users.service");
 const jwt_1 = require("@nestjs/jwt");
+const redis_service_1 = require("../redis/redis.service");
 let AuthService = class AuthService {
-    constructor(userService, jwtService) {
+    constructor(userService, jwtService, Redis) {
         this.userService = userService;
         this.jwtService = jwtService;
-        this.blacklist = new Set();
+        this.Redis = Redis;
     }
-    async login(username, password) {
-        const user = await this.userService.findUsername(username);
-        if (user && await bcrypt.compare(password, user.password)) {
-            const payload = { username: user.username, sub: user.id };
-            return {
-                accessToken: await this.jwtService.signAsync(payload),
-            };
-        }
-        return new common_1.UnauthorizedException();
+    async generateAcessToken(username, userID) {
+        const payload = { sub: userID, username: username };
+        return await this.jwtService.signAsync(payload);
     }
-    async signUp(username, email, password) {
-        if (!username || !email || !password) {
-            throw new Error('Please complete all the required fields');
+    async validateCredentials(username, input_password) {
+        const user = await this.userService.findByUsername(username);
+        if (!user) {
+            throw new common_1.NotFoundException('User with the provided username was not found');
         }
-        if (await this.userService.findUsername(username)) {
+        if (!await bcrypt.compare(input_password, user.password)) {
+            throw new common_1.UnauthorizedException('Invalid password. Please try again');
+        }
+        const { password, ...result } = user;
+        return result;
+    }
+    async signUp(first_name, last_name, age, username, email, password) {
+        if (await this.userService.findByUsername(username)) {
             throw new Error('This username is already taken');
         }
-        if (await this.userService.findEmail(email)) {
+        if (await this.userService.findByEmail(email)) {
             throw new Error('This email is already registered');
         }
         const hashedPassword = await bcrypt.hash(password, 10);
         const user = this.userService.create({
-            username: username,
-            email: email,
+            first_name,
+            last_name,
+            age,
+            username,
+            email,
             password: hashedPassword
         });
         if (!user) {
@@ -51,11 +57,38 @@ let AuthService = class AuthService {
         }
         return await this.login(username, password);
     }
+    async login(username, password) {
+        const user = await this.validateCredentials(username, password);
+        if (!user) {
+            throw new common_1.UnauthorizedException('Invalid login attempt. Try again.');
+        }
+        const redis = await this.Redis.getClient();
+        const accessToken = await this.generateAcessToken(username, user.id.toString());
+        await redis.set(`token:${accessToken}`, user.id, { 'EX': 60 });
+        const userFlattened = {
+            id: user.id,
+            first_name: user.first_name,
+            last_name: user.last_name,
+            age: user.age,
+            username: user.username,
+            email: user.email
+        };
+        await redis.hSet(`user:${user.id}`, userFlattened);
+        await redis.expire(`user:${user.id}`, 60);
+        return {
+            accessToken
+        };
+    }
+    async logout(req) {
+        const redis = await this.Redis.getClient();
+        await redis.del(`user:${req.user.id}`);
+    }
 };
 exports.AuthService = AuthService;
 exports.AuthService = AuthService = __decorate([
     (0, common_1.Injectable)(),
     __metadata("design:paramtypes", [users_service_1.UsersService,
-        jwt_1.JwtService])
+        jwt_1.JwtService,
+        redis_service_1.RedisService])
 ], AuthService);
 //# sourceMappingURL=auth.service.js.map

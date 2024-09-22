@@ -7,6 +7,8 @@ import Output from "./Output";
 import { useLocation } from "react-router-dom";
 import {useNavigate} from "react-router-dom";
 import axios from "axios";
+import { Helmet } from 'react-helmet';
+
 
 
 const CodeEditor = () => {
@@ -40,6 +42,12 @@ const CodeEditor = () => {
     }
 
     return (
+        <>
+      {/* React Helmet for changing the page title and meta tags */}
+      <Helmet>
+        <title>Code Editor - CoDom</title>
+        <meta name="description" content="Sign up for MyApp and start collaborating on code!" />
+      </Helmet>
         <Box>
             <HStack spacing={4}>
                 <Box w="50%">
@@ -57,6 +65,7 @@ const CodeEditor = () => {
             </HStack>
             <Button colorScheme="blue" onClick={handleLogout}>Logout</Button>
         </Box>
+        </>
     )
 }
 

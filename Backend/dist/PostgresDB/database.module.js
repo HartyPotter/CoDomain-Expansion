@@ -6,20 +6,17 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
     return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.UsersModule = void 0;
+exports.DatabaseModule = void 0;
 const common_1 = require("@nestjs/common");
-const users_service_1 = require("./users.service");
-const users_controller_1 = require("./users.controller");
-const database_module_1 = require("../PostgresDB/database.module");
-let UsersModule = class UsersModule {
+const database_service_1 = require("./database.service");
+const redis_service_1 = require("../redis/redis.service");
+let DatabaseModule = class DatabaseModule {
 };
-exports.UsersModule = UsersModule;
-exports.UsersModule = UsersModule = __decorate([
+exports.DatabaseModule = DatabaseModule;
+exports.DatabaseModule = DatabaseModule = __decorate([
     (0, common_1.Module)({
-        imports: [database_module_1.DatabaseModule],
-        controllers: [users_controller_1.UsersController],
-        providers: [users_service_1.UsersService],
-        exports: [users_service_1.UsersService]
+        providers: [database_service_1.DatabaseService, redis_service_1.RedisService],
+        exports: [database_service_1.DatabaseService, redis_service_1.RedisService],
     })
-], UsersModule);
-//# sourceMappingURL=users.module.js.map
+], DatabaseModule);
+//# sourceMappingURL=database.module.js.map

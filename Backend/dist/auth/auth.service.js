@@ -25,63 +25,54 @@ let AuthService = class AuthService {
         const payload = { sub: userID, username: username };
         return await this.jwtService.signAsync(payload);
     }
-    async validateCredentials(username, input_password) {
-        const user = await this.userService.findByUsername(username);
+    async validateCredentials(loginUserDto) {
+        const user = await this.userService.findByUsername(loginUserDto.username);
         if (!user) {
             throw new common_1.NotFoundException('User with the provided username was not found');
         }
-        if (!await bcrypt.compare(input_password, user.password)) {
+        if (!await bcrypt.compare(loginUserDto.password, user.password)) {
             throw new common_1.UnauthorizedException('Invalid password. Please try again');
         }
-        const { password, ...result } = user;
+        const { password, createdAt, updatedAt, ...result } = user;
         return result;
     }
-    async signUp(first_name, last_name, age, username, email, password) {
-        if (await this.userService.findByUsername(username)) {
-            throw new Error('This username is already taken');
+    async register(registerUserDto) {
+        if (await this.userService.findByUsername(registerUserDto.username)) {
+            return null;
         }
-        if (await this.userService.findByEmail(email)) {
-            throw new Error('This email is already registered');
+        if (await this.userService.findByEmail(registerUserDto.email)) {
+            return null;
         }
-        const hashedPassword = await bcrypt.hash(password, 10);
-        const user = this.userService.create({
-            first_name,
-            last_name,
-            age,
-            username,
-            email,
-            password: hashedPassword
-        });
+        const password = await bcrypt.hash(registerUserDto.password, 10);
+        const user = this.userService.create({ ...registerUserDto, password });
         if (!user) {
             throw new Error('User creation failed');
         }
-        return await this.login(username, password);
+        return user;
     }
-    async login(username, password) {
-        const user = await this.validateCredentials(username, password);
+    async login(loginUserDto) {
+        const user = await this.validateCredentials(loginUserDto);
         if (!user) {
-            throw new common_1.UnauthorizedException('Invalid login attempt. Try again.');
+            throw new common_1.HttpException("Invalid login attempt. Try again.", common_1.HttpStatus.INTERNAL_SERVER_ERROR);
         }
+        const accessToken = await this.generateAcessToken(loginUserDto.username, user.id.toString());
+        console.log("Access Token: ", accessToken);
         const redis = await this.Redis.getClient();
-        const accessToken = await this.generateAcessToken(username, user.id.toString());
-        await redis.set(`token:${accessToken}`, user.id, { 'EX': 60 });
-        const userFlattened = {
-            id: user.id,
-            first_name: user.first_name,
-            last_name: user.last_name,
-            age: user.age,
-            username: user.username,
-            email: user.email
-        };
-        await redis.hSet(`user:${user.id}`, userFlattened);
-        await redis.expire(`user:${user.id}`, 60);
+        await redis.hSet(`user:${accessToken}`, user);
+        await redis.expire(`user:${accessToken}`, 7 * 24 * 60 * 60);
         return {
+            user,
             accessToken
         };
     }
-    async logout(req) {
+    async logout(token) {
         const redis = await this.Redis.getClient();
-        await redis.del(`user:${req.user.id}`);
+        try {
+            await redis.del(`user:${token}`);
+        }
+        catch (error) {
+            throw new common_1.HttpException(error, common_1.HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 };
 exports.AuthService = AuthService;

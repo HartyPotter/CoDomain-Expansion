@@ -1,23 +1,38 @@
-import { Box } from '@chakra-ui/react';
-import {BrowserRouter, Routes, Route, Navigate, useNavigate} from 'react-router-dom';
-import LoginForm from './components/LoginForm';
-import CodeEditor from "./components/CodeEditor.jsx";
+import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
+import { AuthProvider, useAuth } from './contexts/AuthContext';
+import LandingPage from './components/LandingPage';
 import RegisterForm from './components/RegisterForm';
-import LandingPage from './components/LandingPage.jsx';
+import LoginForm from './components/LoginForm';
+import CodeEditor from './components/CodeEditor';
+
+const ProtectedRoute = ({ children }) => {
+  const { user } = useAuth();
+  if (!user) {
+    return <Navigate to="/login" />;
+  }
+  return children;
+};
 
 function App() {
-    return (
-    <Box minH="100vh" bg="#0f0a19" color="gray.500" px={6} py={8}>
-        <BrowserRouter>
-            <Routes>
-                <Route path="/" element={<LandingPage />} />
-                <Route path="/login" element={<LoginForm />} />
-                <Route path="/register" element={<RegisterForm />} />
-                <Route path="/code-editor" element={<CodeEditor/>} />
-            </Routes>
-        </BrowserRouter>
-    </Box>
-    );
+  return (
+    <AuthProvider>
+      <Router>
+        <Routes>
+          <Route path="/" element={<LandingPage />} />
+          <Route path="/register" element={<RegisterForm />} />
+          <Route path="/login" element={<LoginForm />} />
+          <Route 
+            path="/code-editor" 
+            element={
+              <ProtectedRoute>
+                <CodeEditor />
+              </ProtectedRoute>
+            } 
+          />
+        </Routes>
+      </Router>
+    </AuthProvider>
+  );
 }
 
 export default App;

@@ -1,8 +1,10 @@
 import { Box, Heading, Text, Button, VStack, HStack, Center, Image } from '@chakra-ui/react';
 import { Link, useNavigate } from 'react-router-dom';
+import { useAuth } from '../contexts/AuthContext';
 
 function LandingPage() {
   const navigate = useNavigate();
+  const { user, logout } = useAuth(); // Add user and logout from useAuth
 
   return (
     <Box>
@@ -12,8 +14,17 @@ function LandingPage() {
           <Heading size="lg">Codomain Expansion</Heading>
           <HStack spacing={4}>
             <Link to="/">Home</Link>
-            <Link to="/register">Register</Link>
-            <Link to="/login">Login</Link>
+            {user ? (
+              <>
+                <Text>Welcome, {user.username}!</Text>
+                <Button onClick={logout}>Logout</Button>
+              </>
+            ) : (
+              <>
+                <Link to="/register">Register</Link>
+                <Link to="/login">Login</Link>
+              </>
+            )}
           </HStack>
         </HStack>
       </Box>
@@ -25,11 +36,17 @@ function LandingPage() {
             <Heading as="h1" size="2xl">Welcome to Codomain Expansion</Heading>
             <Text fontSize="xl">
               A collaborative coding platform where you can write, share, and execute code online.
-              Sign up to start collaborating today!
+              {user ? " Start coding now!" : " Sign up to start collaborating today!"}
             </Text>
             <HStack spacing={4}>
-              <Button colorScheme="blue" size="lg" onClick={() => navigate('/register')}>Get Started</Button>
-              <Button variant="outline" colorScheme="blue" size="lg" onClick={() => navigate('/login')}>Login</Button>
+              {user ? (
+                <Button colorScheme="blue" size="lg" onClick={() => navigate('/code-editor')}>Go to Code Editor</Button>
+              ) : (
+                <>
+                  <Button colorScheme="blue" size="lg" onClick={() => navigate('/register')}>Get Started</Button>
+                  <Button variant="outline" colorScheme="blue" size="lg" onClick={() => navigate('/login')}>Login</Button>
+                </>
+              )}
             </HStack>
           </VStack>
         </Center>

@@ -20,16 +20,21 @@ let JwtStrategy = class JwtStrategy extends (0, passport_1.PassportStrategy)(pas
             jwtFromRequest: passport_jwt_1.ExtractJwt.fromAuthHeaderAsBearerToken(),
             ignoreExpiration: false,
             secretOrKey: process.env.JWT_TOKEN_SECRET,
+            passReqToCallback: true,
         });
         this.Redis = Redis;
     }
-    async validate(payload) {
+    async validate(req, payload) {
+        const token = passport_jwt_1.ExtractJwt.fromAuthHeaderAsBearerToken()(req);
         const redis = await this.Redis.getClient();
-        const user = await redis.hGetAll(`user:${+payload.sub}`);
+        const user = await redis.hGetAll(`user:${token}`);
         if (!user || Object.keys(user).length === 0) {
-            throw new common_1.UnauthorizedException();
+            throw new common_1.UnauthorizedException("User not logged in.");
         }
-        const redisUser = {
+        if (user.id != payload.sub) {
+            throw new common_1.UnauthorizedException("Wrong token.");
+        }
+        const req_w_user = {
             id: payload.sub,
             first_name: user.first_name,
             last_name: user.last_name,
@@ -37,7 +42,7 @@ let JwtStrategy = class JwtStrategy extends (0, passport_1.PassportStrategy)(pas
             username: user.username,
             email: user.email,
         };
-        return redisUser;
+        return req_w_user;
     }
 };
 exports.JwtStrategy = JwtStrategy;

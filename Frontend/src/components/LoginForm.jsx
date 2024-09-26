@@ -32,26 +32,32 @@ function LoginForm() {
         
         try {
             const {username, password} = data;
-            const response = await axios.post("http://localhost:3001/auth/login", { username, password });
+            const response = await axios.post("http://localhost:3001/auth/login",
+            { username, password }, {withCredentials: true });
             if (response.status === 200) {
+                console.log("SUCESSSSSSSS");
+                console.log("Cooooookieeee:", document.cookie);
                 login(response.data);
-                setSuccessMessage('Logged in successfully, redirectinig...');
+                setSuccessMessage('Logged in successfully, redirecting...');
                 setErrorMessage('');
                 setShowSuccess(true);
                 setShowError(false);
 
                 setTimeout(() => navigate('/'), 3000);
 
-            } else {
+            }
+            else {
                 throw new Error('Log in failed');
             }
-        } catch (error) {
+        }
+        catch (error) {
             console.error('Log in Failed: ', error);
             setErrorMessage('Log in failed. Please try again.');
             setSuccessMessage('');
             setShowSuccess(false);
             setShowError(true);
-        } finally {
+        }
+        finally {
             setIsLoading(false);
         }
     }

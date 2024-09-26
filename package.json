@@ -3,8 +3,8 @@
   "version": "1.0.0",
   "description": "A collaborative IDE with React frontend and Nest.js backend",
   "scripts": {
-    "server": "npm run start --prefix Backend",
-    "client": "npm run dev --prefix Frontend",
+    "server": "npm run start:dev --prefix Backend",
+    "client": "npm run start:dev --prefix Frontend",
     "start": "concurrently \"npm run server\" \"npm run client\"",
     "start:dev": "concurrently \"npm run server --watch\" \"npm run client --watch\"",
     "install:all": "npm install && cd frontend && npm install && cd ../backend && npm install"

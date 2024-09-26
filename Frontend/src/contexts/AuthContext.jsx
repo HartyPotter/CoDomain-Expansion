@@ -12,9 +12,9 @@ export const AuthProvider = ({ children }) => {
     const checkLoggedInUser = async () => {
       try {
         console.log("All Cookies:", Cookies.get());
-        const response = await axios.get("http://localhost:3001/auth/profile", {
-          withCredentials: true
-        })
+          const response = await axios.get("http://localhost:3001/auth/profile", {
+              withCredentials: true,
+          })
         // const response = await fetch('http://localhost:3001/auth/profile', {
         //   method: 'GET',
         //   credentials: 'include'

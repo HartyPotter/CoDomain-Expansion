@@ -44,11 +44,11 @@ let AuthController = class AuthController {
             res.cookie("accessToken", accessToken, {
                 httpOnly: true,
                 secure: false,
-                sameSite: "none",
-                maxAge: 1,
+                sameSite: "lax",
+                maxAge: 24 * 60 * 60 * 1000,
                 path: "/"
             });
-            res.send("Logged in successfully");
+            return user;
         }
         catch (error) {
             throw new common_1.HttpException(error, common_1.HttpStatus.INTERNAL_SERVER_ERROR);

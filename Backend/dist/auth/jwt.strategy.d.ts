@@ -1,3 +1,4 @@
+import { Request } from 'express';
 import { RedisService } from 'src/redis/redis.service';
 export interface RequestWithUser {
     id: string;

@@ -49,8 +49,8 @@ export class AuthController {
       res.cookie("accessToken", accessToken, {
         httpOnly: true,     // Prevent access to the cookie from JavaScript
         secure: false,       // Send the cookie over HTTPS only
-        sameSite: "none",  // Prevent CSRF attacks
-        maxAge: 1,
+        sameSite: "lax",  // Prevent CSRF attacks
+        maxAge: 24 * 60 * 60 * 1000,
         path: "/"
       });
 
@@ -62,8 +62,10 @@ export class AuthController {
       //   username: user.username,
       //   email: user.email
       // }
-      res.send("Logged in successfully");
-    } catch (error) {
+      // res.send("Logged in successfully");
+      return user;
+    }
+    catch (error) {
         throw new HttpException(error, HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
@@ -86,6 +88,7 @@ export class AuthController {
 
   @Get('profile')
   async getProfile(@Req() req: requestWithUser) {
+    // console.log("HEADERSSSSSS: -------", req.headers);
     return req.user;
   }
 

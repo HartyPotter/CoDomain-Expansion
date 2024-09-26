@@ -16,8 +16,16 @@ const passport_jwt_1 = require("passport-jwt");
 const redis_service_1 = require("../redis/redis.service");
 let JwtStrategy = class JwtStrategy extends (0, passport_1.PassportStrategy)(passport_jwt_1.Strategy) {
     constructor(Redis) {
+        const cookieExtractor = (req) => {
+            let token = null;
+            if (req && req.cookies) {
+                token = req.cookies['accessToken'];
+                console.log("Token from extractor: ", token);
+            }
+            return token;
+        };
         super({
-            jwtFromRequest: passport_jwt_1.ExtractJwt.fromAuthHeaderAsBearerToken(),
+            jwtFromRequest: cookieExtractor,
             ignoreExpiration: false,
             secretOrKey: process.env.JWT_TOKEN_SECRET,
             passReqToCallback: true,
@@ -25,7 +33,8 @@ let JwtStrategy = class JwtStrategy extends (0, passport_1.PassportStrategy)(pas
         this.Redis = Redis;
     }
     async validate(req, payload) {
-        const token = passport_jwt_1.ExtractJwt.fromAuthHeaderAsBearerToken()(req);
+        const token = req.cookies?.accessToken;
+        console.log("Token from validate: ", token);
         const redis = await this.Redis.getClient();
         const user = await redis.hGetAll(`user:${token}`);
         if (!user || Object.keys(user).length === 0) {
@@ -34,6 +43,9 @@ let JwtStrategy = class JwtStrategy extends (0, passport_1.PassportStrategy)(pas
         if (user.id != payload.sub) {
             throw new common_1.UnauthorizedException("Wrong token.");
         }
+        console.log("Payloadddd: ", payload.sub);
+        console.log("User ID: ", user.id);
+        console.log("USER: ", user);
         const req_w_user = {
             id: payload.sub,
             first_name: user.first_name,

@@ -12,7 +12,7 @@ export declare class AuthController {
     register(registerUserDto: RegisterUserDto): Promise<{
         message: string;
     }>;
-    login(loginUserDto: LoginUserDto, res: Response): Promise<void>;
+    login(loginUserDto: LoginUserDto, res: Response): Promise<any>;
     logout(req: Request, res: Response): Promise<{
         message: string;
     }>;

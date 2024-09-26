@@ -4,9 +4,10 @@ import { DatabaseModule } from './PostgresDB/database.module';
 import { AuthModule } from './auth/auth.module';
 import { CodeExecutionModule } from './code-execution/code-execution.module';
 import { RedisService } from './redis/redis.service';
+import { ProjectsModule } from "./projects/projects.module";
 
 @Module({
-  imports: [AuthModule, DatabaseModule, UsersModule, CodeExecutionModule],
+  imports: [AuthModule, DatabaseModule, UsersModule, CodeExecutionModule, ProjectsModule],
   controllers: [],
   providers: [RedisService],
 })

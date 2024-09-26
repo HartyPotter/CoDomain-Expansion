@@ -3,7 +3,7 @@ import { Prisma } from '@prisma/client';
 export declare class ProjectsController {
     private readonly projectsService;
     constructor(projectsService: ProjectsService);
-    create(createProjectDto: Prisma.ProjectCreateInput, id: number): Promise<{
+    create(createProjectDto: Prisma.ProjectCreateInput, id: string): Promise<{
         id: number;
         name: string;
         language: string;
@@ -12,7 +12,6 @@ export declare class ProjectsController {
         isPublic: boolean;
         volumePath: string;
     }>;
-    findAll(id: number): Promise<{}>;
     findOne(id: string): Promise<{
         id: number;
         name: string;
@@ -22,6 +21,23 @@ export declare class ProjectsController {
         isPublic: boolean;
         volumePath: string;
     }>;
-    update(id: string, updateProjectDto: Prisma.ProjectUpdateInput): Promise<string>;
-    remove(id: string): Promise<string>;
+    findCollaborators(id: string): Promise<string[]>;
+    update(id: string, updateProjectDto: Prisma.ProjectUpdateInput): Promise<{
+        id: number;
+        name: string;
+        language: string;
+        createdAt: Date;
+        lastAccessed: Date;
+        isPublic: boolean;
+        volumePath: string;
+    }>;
+    remove(id: string): Promise<{
+        id: number;
+        name: string;
+        language: string;
+        createdAt: Date;
+        lastAccessed: Date;
+        isPublic: boolean;
+        volumePath: string;
+    }>;
 }

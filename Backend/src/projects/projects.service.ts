@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
-import { DatabaseService } from 'src/database/database.service'
+import { DatabaseService } from 'src/PostgresDB/database.service'
 import { Prisma } from '@prisma/client'
+import {dateTimestampProvider} from "rxjs/internal/scheduler/dateTimestampProvider";
 
 @Injectable()
 export class ProjectsService {
@@ -18,7 +19,7 @@ export class ProjectsService {
         language: createProjectDto.language,
         isPublic: createProjectDto.isPublic,
         volumePath: createProjectDto.volumePath,
-        lastAccessed: createProjectDto.lastAccessed,
+        lastAccessed: new Date(),
         UserProject: {
           create: {
             user: {
@@ -31,24 +32,34 @@ export class ProjectsService {
     })
   }
 
-  async findAll(userId: number) {
-    const userWithProjects = await this.databaseService.user.findMany({
-      relationLoadStrategy: 'join',
-      include: {
-        UserProject: {
-          select: {
-            project: {
-              select: {
-                name: true,
-              }
-            }
-          },
-        },
+  // async findAll() {
+  //   return this.databaseService.user.findMany({
+  //
+  //   });
+  // }
+
+  async findCollaborators(id: number) {
+    const project = await this.databaseService.project.findUnique({
+      where: {
+        id,
       },
+      select: {
+        id: true,
+      }
     });
-    console.log(userWithProjects);
-    // Return only the projects from UserProject
-    return {};
+    const collaborators = await this.databaseService.userProject.findMany({
+      where: {
+        projectId: project.id,
+      },
+      select: {
+        user: {
+          select: {
+            username: true,
+          }
+        }
+      }
+    })
+    return collaborators.map(collaborator => collaborator.user.username);
   }
 
 
@@ -61,10 +72,22 @@ export class ProjectsService {
   }
 
   async update(id: number, updateProjectDto: Prisma.ProjectUpdateInput) {
-    return `This action updates a #${id} project`;
+    return this.databaseService.project.update({
+      where: {
+        id,
+      },
+      data: {
+        ...updateProjectDto,
+        lastAccessed: new Date(),
+      },
+    });
   }
 
   async remove(id: number) {
-    return `This action removes a #${id} project`;
+    return this.databaseService.project.delete({
+      where: {
+        id,
+      }
+    });
   }
 }

@@ -11,7 +11,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ProjectsService = void 0;
 const common_1 = require("@nestjs/common");
-const database_service_1 = require("../database/database.service");
+const database_service_1 = require("../PostgresDB/database.service");
 let ProjectsService = class ProjectsService {
     constructor(databaseService) {
         this.databaseService = databaseService;
@@ -28,7 +28,7 @@ let ProjectsService = class ProjectsService {
                 language: createProjectDto.language,
                 isPublic: createProjectDto.isPublic,
                 volumePath: createProjectDto.volumePath,
-                lastAccessed: createProjectDto.lastAccessed,
+                lastAccessed: new Date(),
                 UserProject: {
                     create: {
                         user: {
@@ -40,23 +40,28 @@ let ProjectsService = class ProjectsService {
             }
         });
     }
-    async findAll(userId) {
-        const userWithProjects = await this.databaseService.user.findMany({
-            relationLoadStrategy: 'join',
-            include: {
-                UserProject: {
-                    select: {
-                        project: {
-                            select: {
-                                name: true,
-                            }
-                        }
-                    },
-                },
+    async findCollaborators(id) {
+        const project = await this.databaseService.project.findUnique({
+            where: {
+                id,
             },
+            select: {
+                id: true,
+            }
         });
-        console.log(userWithProjects);
-        return {};
+        const collaborators = await this.databaseService.userProject.findMany({
+            where: {
+                projectId: project.id,
+            },
+            select: {
+                user: {
+                    select: {
+                        username: true,
+                    }
+                }
+            }
+        });
+        return collaborators.map(collaborator => collaborator.user.username);
     }
     async findOne(id) {
         return this.databaseService.project.findUnique({
@@ -66,10 +71,22 @@ let ProjectsService = class ProjectsService {
         });
     }
     async update(id, updateProjectDto) {
-        return `This action updates a #${id} project`;
+        return this.databaseService.project.update({
+            where: {
+                id,
+            },
+            data: {
+                ...updateProjectDto,
+                lastAccessed: new Date(),
+            },
+        });
     }
     async remove(id) {
-        return `This action removes a #${id} project`;
+        return this.databaseService.project.delete({
+            where: {
+                id,
+            }
+        });
     }
 };
 exports.ProjectsService = ProjectsService;

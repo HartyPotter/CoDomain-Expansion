@@ -16,18 +16,19 @@ exports.ProjectsController = void 0;
 const common_1 = require("@nestjs/common");
 const projects_service_1 = require("./projects.service");
 const client_1 = require("@prisma/client");
+const public_decorator_1 = require("../auth/decorators/public.decorator");
 let ProjectsController = class ProjectsController {
     constructor(projectsService) {
         this.projectsService = projectsService;
     }
     create(createProjectDto, id) {
-        return this.projectsService.create(createProjectDto, id);
-    }
-    findAll(id) {
-        return this.projectsService.findAll(id);
+        return this.projectsService.create(createProjectDto, +id);
     }
     findOne(id) {
         return this.projectsService.findOne(+id);
+    }
+    findCollaborators(id) {
+        return this.projectsService.findCollaborators(+id);
     }
     update(id, updateProjectDto) {
         return this.projectsService.update(+id, updateProjectDto);
@@ -38,20 +39,14 @@ let ProjectsController = class ProjectsController {
 };
 exports.ProjectsController = ProjectsController;
 __decorate([
-    (0, common_1.Post)(),
+    (0, public_decorator_1.Public)(),
+    (0, common_1.Post)(':id'),
     __param(0, (0, common_1.Body)()),
     __param(1, (0, common_1.Param)('id')),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object, Number]),
+    __metadata("design:paramtypes", [Object, String]),
     __metadata("design:returntype", void 0)
 ], ProjectsController.prototype, "create", null);
-__decorate([
-    (0, common_1.Get)(),
-    __param(0, (0, common_1.Param)('id')),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Number]),
-    __metadata("design:returntype", void 0)
-], ProjectsController.prototype, "findAll", null);
 __decorate([
     (0, common_1.Get)(':id'),
     __param(0, (0, common_1.Param)('id')),
@@ -59,6 +54,13 @@ __decorate([
     __metadata("design:paramtypes", [String]),
     __metadata("design:returntype", void 0)
 ], ProjectsController.prototype, "findOne", null);
+__decorate([
+    (0, common_1.Get)(':id/collaborators'),
+    __param(0, (0, common_1.Param)('id')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", void 0)
+], ProjectsController.prototype, "findCollaborators", null);
 __decorate([
     (0, common_1.Patch)(':id'),
     __param(0, (0, common_1.Param)('id')),

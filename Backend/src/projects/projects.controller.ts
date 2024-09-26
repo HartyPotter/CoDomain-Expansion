@@ -1,6 +1,6 @@
 import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
 import { ProjectsService } from './projects.service';
-import { DatabaseService } from 'src/database/database.service'
+import { DatabaseService } from 'src/PostgresDB/database.service'
 import { Prisma } from '@prisma/client'
 
 @Controller('projects')

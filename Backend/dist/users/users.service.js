@@ -11,7 +11,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.UsersService = void 0;
 const common_1 = require("@nestjs/common");
-const database_service_1 = require("../database/database.service");
+const database_service_1 = require("../PostgresDB/database.service");
 let UsersService = class UsersService {
     constructor(databaseService) {
         this.databaseService = databaseService;
@@ -19,6 +19,9 @@ let UsersService = class UsersService {
     async create(createUserDto) {
         return this.databaseService.user.create({
             data: {
+                first_name: createUserDto.first_name,
+                last_name: createUserDto.last_name,
+                age: createUserDto.age,
                 username: createUserDto.username,
                 email: createUserDto.email,
                 password: createUserDto.password,
@@ -31,21 +34,21 @@ let UsersService = class UsersService {
     async findAll() {
         return this.databaseService.user.findMany();
     }
-    async findOne(id) {
+    async findByID(id) {
         return this.databaseService.user.findUnique({
             where: {
                 id,
             }
         });
     }
-    async findUsername(username) {
+    async findByUsername(username) {
         return this.databaseService.user.findUnique({
             where: {
                 username,
             }
         });
     }
-    async findEmail(email) {
+    async findByEmail(email) {
         return this.databaseService.user.findUnique({
             where: {
                 email,

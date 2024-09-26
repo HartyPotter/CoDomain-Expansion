@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { Prisma } from '@prisma/client'
-import { DatabaseService } from '../database/database.service';
+import { DatabaseService } from '../PostgresDB/database.service';
 
 @Injectable()
 export class UsersService {
@@ -9,12 +9,12 @@ export class UsersService {
   async create(createUserDto: Prisma.UserCreateInput) {
     return this.databaseService.user.create({
       data: {
-        username: createUserDto.username,
-        email: createUserDto.email,
-        password: createUserDto.password,
         first_name: createUserDto.first_name,
         last_name: createUserDto.last_name,
         age: createUserDto.age,
+        username: createUserDto.username,
+        email: createUserDto.email,
+        password: createUserDto.password,
       }
     });
   }
@@ -23,7 +23,7 @@ export class UsersService {
     return this.databaseService.user.findMany();
   }
 
-  async findOne(id: number) {
+  async findByID(id: number) {
     return this.databaseService.user.findUnique({
       where: {
         id,
@@ -31,7 +31,7 @@ export class UsersService {
     });
   }
 
-  async findUsername(username: string) {
+  async findByUsername(username: string) {
     return this.databaseService.user.findUnique({
       where: {
         username,
@@ -39,7 +39,7 @@ export class UsersService {
     });
   }
 
-  async findEmail(email: string) {
+  async findByEmail(email: string) {
     return this.databaseService.user.findUnique({
       where: {
         email,

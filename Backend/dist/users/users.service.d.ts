@@ -5,6 +5,9 @@ export declare class UsersService {
     constructor(databaseService: DatabaseService);
     create(createUserDto: Prisma.UserCreateInput): Promise<{
         id: number;
+        first_name: string;
+        last_name: string;
+        age: number;
         username: string;
         email: string;
         password: string;
@@ -13,6 +16,9 @@ export declare class UsersService {
     }>;
     findAll(): Promise<{
         id: number;
+        first_name: string;
+        last_name: string;
+        age: number;
         username: string;
         email: string;
         password: string;
@@ -21,6 +27,9 @@ export declare class UsersService {
     }[]>;
     findOne(id: number): Promise<{
         id: number;
+        first_name: string;
+        last_name: string;
+        age: number;
         username: string;
         email: string;
         password: string;
@@ -29,6 +38,9 @@ export declare class UsersService {
     }>;
     findUsername(username: string): Promise<{
         id: number;
+        first_name: string;
+        last_name: string;
+        age: number;
         username: string;
         email: string;
         password: string;
@@ -37,6 +49,9 @@ export declare class UsersService {
     }>;
     findEmail(email: string): Promise<{
         id: number;
+        first_name: string;
+        last_name: string;
+        age: number;
         username: string;
         email: string;
         password: string;
@@ -45,6 +60,9 @@ export declare class UsersService {
     }>;
     update(id: number, updateUserDto: Prisma.UserUpdateInput): Promise<{
         id: number;
+        first_name: string;
+        last_name: string;
+        age: number;
         username: string;
         email: string;
         password: string;
@@ -53,6 +71,9 @@ export declare class UsersService {
     }>;
     remove(id: number): Promise<{
         id: number;
+        first_name: string;
+        last_name: string;
+        age: number;
         username: string;
         email: string;
         password: string;

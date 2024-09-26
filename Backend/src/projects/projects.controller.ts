@@ -1,5 +1,6 @@
 import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
 import { ProjectsService } from './projects.service';
+import { DatabaseService } from 'src/database/database.service'
 import { Prisma } from '@prisma/client'
 
 @Controller('projects')
@@ -7,13 +8,13 @@ export class ProjectsController {
   constructor(private readonly projectsService: ProjectsService) {}
 
   @Post()
-  create(@Body() createProjectDto: Prisma.ProjectCreateInput) {
-    return this.projectsService.create(createProjectDto);
+  create(@Body() createProjectDto: Prisma.ProjectCreateInput, @Param('id') id: number) {
+    return this.projectsService.create(createProjectDto, id);
   }
 
   @Get()
-  findAll() {
-    return this.projectsService.findAll();
+  findAll(@Param('id') id: number) {
+    return this.projectsService.findAll(id);
   }
 
   @Get(':id')

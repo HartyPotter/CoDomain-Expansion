@@ -5,6 +5,9 @@ export declare class UsersController {
     constructor(usersService: UsersService);
     create(createUserDto: Prisma.UserCreateInput): Promise<{
         id: number;
+        first_name: string;
+        last_name: string;
+        age: number;
         username: string;
         email: string;
         password: string;
@@ -13,6 +16,9 @@ export declare class UsersController {
     }>;
     findAll(): Promise<{
         id: number;
+        first_name: string;
+        last_name: string;
+        age: number;
         username: string;
         email: string;
         password: string;
@@ -21,6 +27,9 @@ export declare class UsersController {
     }[]>;
     findOne(id: string): Promise<{
         id: number;
+        first_name: string;
+        last_name: string;
+        age: number;
         username: string;
         email: string;
         password: string;
@@ -29,6 +38,9 @@ export declare class UsersController {
     }>;
     update(id: string, updateUserDto: Prisma.UserUpdateInput): Promise<{
         id: number;
+        first_name: string;
+        last_name: string;
+        age: number;
         username: string;
         email: string;
         password: string;
@@ -37,6 +49,9 @@ export declare class UsersController {
     }>;
     remove(id: string): Promise<{
         id: number;
+        first_name: string;
+        last_name: string;
+        age: number;
         username: string;
         email: string;
         password: string;

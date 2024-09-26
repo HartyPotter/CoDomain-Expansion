@@ -10,7 +10,7 @@ exports.ProjectsModule = void 0;
 const common_1 = require("@nestjs/common");
 const projects_service_1 = require("./projects.service");
 const projects_controller_1 = require("./projects.controller");
-const database_module_1 = require("../PostgresDB/database.module");
+const database_module_1 = require("../database/database.module");
 let ProjectsModule = class ProjectsModule {
 };
 exports.ProjectsModule = ProjectsModule;

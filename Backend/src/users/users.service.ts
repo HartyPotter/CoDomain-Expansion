@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { Prisma } from '@prisma/client'
-import { DatabaseService } from '../PostgresDB/database.service';
+import { DatabaseService } from '../database/database.service';
 
 @Injectable()
 export class UsersService {
@@ -12,6 +12,9 @@ export class UsersService {
         username: createUserDto.username,
         email: createUserDto.email,
         password: createUserDto.password,
+        first_name: createUserDto.first_name,
+        last_name: createUserDto.last_name,
+        age: createUserDto.age,
       }
     });
   }

@@ -11,18 +11,59 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ProjectsService = void 0;
 const common_1 = require("@nestjs/common");
-const database_service_1 = require("../PostgresDB/database.service");
+const database_service_1 = require("../database/database.service");
 let ProjectsService = class ProjectsService {
     constructor(databaseService) {
         this.databaseService = databaseService;
     }
-    async create(createProjectDto) {
+    async create(createProjectDto, id) {
+        const user = this.databaseService.user.findUnique({
+            where: {
+                id,
+            }
+        });
+        return this.databaseService.project.create({
+            data: {
+                name: createProjectDto.name,
+                language: createProjectDto.language,
+                isPublic: createProjectDto.isPublic,
+                volumePath: createProjectDto.volumePath,
+                lastAccessed: createProjectDto.lastAccessed,
+                UserProject: {
+                    create: {
+                        user: {
+                            connect: { id: id },
+                        },
+                        role: 'Owner',
+                    }
+                }
+            }
+        });
     }
-    async findAll() {
-        return `This action returns all projects`;
+    async findAll(userId) {
+        const userWithProjects = await this.databaseService.user.findMany({
+            relationLoadStrategy: 'join',
+            include: {
+                UserProject: {
+                    select: {
+                        project: {
+                            select: {
+                                name: true,
+                            }
+                        }
+                    },
+                },
+            },
+        });
+        console.log(userWithProjects);
+        return {};
     }
     async findOne(id) {
-        return `This action returns a #${id} project`;
+        return this.databaseService.project.findUnique({
+            where: {
+                id,
+            }
+        });
     }
     async update(id, updateProjectDto) {
         return `This action updates a #${id} project`;

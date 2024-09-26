@@ -22,6 +22,9 @@ let UsersService = class UsersService {
                 username: createUserDto.username,
                 email: createUserDto.email,
                 password: createUserDto.password,
+                first_name: createUserDto.first_name,
+                last_name: createUserDto.last_name,
+                age: createUserDto.age,
             }
         });
     }

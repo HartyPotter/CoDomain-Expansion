@@ -21,6 +21,9 @@ let AuthService = class AuthService {
         this.blacklist = new Set();
     }
     async login(username, password) {
+        if (!username || !password) {
+            throw new Error('Please complete all the required fields');
+        }
         const user = await this.userService.findUsername(username);
         if (user && await bcrypt.compare(password, user.password)) {
             const payload = { username: user.username, sub: user.id };
@@ -44,7 +47,10 @@ let AuthService = class AuthService {
         const user = this.userService.create({
             username: username,
             email: email,
-            password: hashedPassword
+            password: hashedPassword,
+            first_name: "placeholder",
+            last_name: "placeholder",
+            age: 23,
         });
         if (!user) {
             throw new Error('User creation failed');

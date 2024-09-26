@@ -45,7 +45,10 @@ export class AuthService {
     const user = this.userService.create({
       username: username,
       email: email,
-      password: hashedPassword
+      password: hashedPassword,
+      first_name: "placeholder",
+      last_name: "placeholder",
+      age: 23,
     });
 
     // Make sure the user is saved and returned with an id

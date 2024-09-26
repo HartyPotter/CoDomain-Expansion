@@ -5,7 +5,8 @@
 // Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
 
 generator client {
-  provider = "prisma-client-js"
+  provider        = "prisma-client-js"
+  previewFeatures = ["relationJoins"]
 }
 
 datasource db {
@@ -14,41 +15,41 @@ datasource db {
 }
 
 model User {
-  id            Int                   @id   @default(autoincrement())
-  first_name    String
-  last_name     String
-  age           Int
-  username      String                @unique
-  email         String                @unique
-  password      String
-  createdAt     DateTime              @default(now())
-  updatedAt     DateTime              @updatedAt
+  id         Int      @id @default(autoincrement())
+  first_name String
+  last_name  String
+  age        Int
+  username   String   @unique
+  email      String   @unique
+  password   String
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
 
   UserProject UserProject[]
 }
 
 model Project {
-  id            Int                   @id @default(autoincrement())
-  name          String
-  language      String
-  createdAt     DateTime              @default(now())
-  lastAccessed  DateTime
-  isPublic      Boolean               @default(false)
-  volumePath    String
+  id           Int      @id @default(autoincrement())
+  name         String
+  language     String
+  createdAt    DateTime @default(now())
+  lastAccessed DateTime
+  isPublic     Boolean  @default(false)
+  volumePath   String
 
   UserProject UserProject[]
 }
 
 // many-to-many relationship
 model UserProject {
-  id            Int                   @id @default(autoincrement())
-  user          User                  @relation(fields: [userId], references: [id])
-  project       Project               @relation(fields: [projectId], references: [id])
-  userId        Int
-  projectId     Int
-  role          String?               // TODO: Maybe make it as ENUM
-  createdAt     DateTime              @default(now())
-  updatedAt     DateTime              @updatedAt
+  id        Int      @id @default(autoincrement())
+  user      User     @relation(fields: [userId], references: [id])
+  project   Project  @relation(fields: [projectId], references: [id])
+  userId    Int
+  projectId Int
+  role      String? // TODO: Maybe make it as ENUM
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-  @@unique([userId, projectId])        // Ensures the same user-project pair is unique
+  @@unique([userId, projectId]) // Ensures the same user-project pair is unique
 }

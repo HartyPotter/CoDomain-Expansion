@@ -5,14 +5,9 @@ import { UsersModule } from '../users/users.module';
 import { PassportModule } from '@nestjs/passport';
 import { JwtModule } from '@nestjs/jwt';
 import { JwtStrategy } from './jwt.strategy';
-import { UsersService } from '../users/users.service';
-import { UsersController } from '../users/users.controller';
-import { DatabaseModule } from '../database/database.module';
-import { DatabaseService } from '../database/database.service';
-import { jwtConstants } from './constants';
+import { DatabaseModule } from '../PostgresDB/database.module';
 import { APP_GUARD } from '@nestjs/core';
-import { AuthGuard } from './auth.guard';
-
+import { JwtAuthGuard } from './jwt-auth.guard';
 
 @Module({
   imports: [
@@ -21,14 +16,17 @@ import { AuthGuard } from './auth.guard';
     PassportModule,
     JwtModule.register({
       global: true,
-      secret: jwtConstants.secret,
-      signOptions: { expiresIn: '60m' },
+      secret: process.env.JWT_TOKEN_SECRET,
+      signOptions: { expiresIn: '7d' },
     })
   ],
-  controllers: [AuthController, UsersController],
-  providers: [AuthService, JwtStrategy, UsersService, DatabaseService, {
-    provide: APP_GUARD, // With this in place, Nest will automatically bind AuthGuard to all endpoints.
-    useClass: AuthGuard,
-  }],
+  controllers: [AuthController],
+  providers: [AuthService, JwtStrategy,
+    {
+      provide: APP_GUARD,
+      useClass: JwtAuthGuard,
+    }
+  ],
+  exports: [AuthService]
 })
 export class AuthModule {}

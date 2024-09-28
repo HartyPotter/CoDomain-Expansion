@@ -14,13 +14,9 @@ const users_module_1 = require("../users/users.module");
 const passport_1 = require("@nestjs/passport");
 const jwt_1 = require("@nestjs/jwt");
 const jwt_strategy_1 = require("./jwt.strategy");
-const users_service_1 = require("../users/users.service");
-const users_controller_1 = require("../users/users.controller");
-const database_module_1 = require("../database/database.module");
-const database_service_1 = require("../database/database.service");
-const constants_1 = require("./constants");
+const database_module_1 = require("../PostgresDB/database.module");
 const core_1 = require("@nestjs/core");
-const auth_guard_1 = require("./auth.guard");
+const jwt_auth_guard_1 = require("./jwt-auth.guard");
 let AuthModule = class AuthModule {
 };
 exports.AuthModule = AuthModule;
@@ -32,15 +28,18 @@ exports.AuthModule = AuthModule = __decorate([
             passport_1.PassportModule,
             jwt_1.JwtModule.register({
                 global: true,
-                secret: constants_1.jwtConstants.secret,
-                signOptions: { expiresIn: '60m' },
+                secret: process.env.JWT_TOKEN_SECRET,
+                signOptions: { expiresIn: '7d' },
             })
         ],
-        controllers: [auth_controller_1.AuthController, users_controller_1.UsersController],
-        providers: [auth_service_1.AuthService, jwt_strategy_1.JwtStrategy, users_service_1.UsersService, database_service_1.DatabaseService, {
+        controllers: [auth_controller_1.AuthController],
+        providers: [auth_service_1.AuthService, jwt_strategy_1.JwtStrategy,
+            {
                 provide: core_1.APP_GUARD,
-                useClass: auth_guard_1.AuthGuard,
-            }],
+                useClass: jwt_auth_guard_1.JwtAuthGuard,
+            }
+        ],
+        exports: [auth_service_1.AuthService]
     })
 ], AuthModule);
 //# sourceMappingURL=auth.module.js.map

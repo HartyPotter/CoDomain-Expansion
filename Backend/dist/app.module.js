@@ -8,20 +8,20 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.AppModule = void 0;
 const common_1 = require("@nestjs/common");
-const code_execution_controller_1 = require("./code-execution/code-execution.controller");
-const code_execution_service_1 = require("./code-execution/code-execution.service");
 const users_module_1 = require("./users/users.module");
-const database_module_1 = require("./database/database.module");
+const database_module_1 = require("./PostgresDB/database.module");
 const auth_module_1 = require("./auth/auth.module");
-const websocket_service_1 = require("./code-execution/websocket.service");
+const code_execution_module_1 = require("./code-execution/code-execution.module");
+const redis_service_1 = require("./redis/redis.service");
+const projects_module_1 = require("./projects/projects.module");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
 exports.AppModule = AppModule = __decorate([
     (0, common_1.Module)({
-        imports: [auth_module_1.AuthModule, database_module_1.DatabaseModule, users_module_1.UsersModule],
-        controllers: [code_execution_controller_1.CodeExecutionController],
-        providers: [code_execution_service_1.CodeExecutionService, websocket_service_1.WebSocketService],
+        imports: [auth_module_1.AuthModule, database_module_1.DatabaseModule, users_module_1.UsersModule, code_execution_module_1.CodeExecutionModule, projects_module_1.ProjectsModule],
+        controllers: [],
+        providers: [redis_service_1.RedisService],
     })
 ], AppModule);
 //# sourceMappingURL=app.module.js.map

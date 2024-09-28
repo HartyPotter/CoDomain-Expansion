@@ -1,18 +1,21 @@
-import { UnauthorizedException } from '@nestjs/common';
 import { AuthService } from './auth.service';
+import { Response } from 'express';
+import { RequestWithUser } from './jwt.strategy';
+import { RegisterUserDto } from './dto/register.dto';
+import { LoginUserDto } from './dto/login.dto';
+interface requestWithUser extends Request {
+    user: RequestWithUser;
+}
 export declare class AuthController {
     private authService;
     constructor(authService: AuthService);
-    login(body: {
-        username: string;
-        password: string;
-    }): Promise<UnauthorizedException | {
-        accessToken: string;
+    register(registerUserDto: RegisterUserDto): Promise<{
+        message: string;
     }>;
-    register(body: {
-        username: string;
-        email: string;
-        password: string;
-    }): Promise<any>;
-    getProfile(req: any): any;
+    login(loginUserDto: LoginUserDto, res: Response): Promise<any>;
+    logout(req: Request, res: Response): Promise<{
+        message: string;
+    }>;
+    getProfile(req: requestWithUser): Promise<RequestWithUser>;
 }
+export {};

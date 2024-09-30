@@ -6,9 +6,9 @@ import theme from './theme.js'
 import {BrowserRouter} from "react-router-dom";
 
 createRoot(document.getElementById('root')).render(
-  <StrictMode>
+  // <StrictMode>
     <ChakraProvider theme={theme}>
         <App />
     </ChakraProvider>
-  </StrictMode>,
+  // </StrictMode>,
 )

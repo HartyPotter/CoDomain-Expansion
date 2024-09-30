@@ -55,7 +55,7 @@ let AuthController = class AuthController {
         }
     }
     async logout(req, res) {
-        const token = req.headers['authorization'].split(' ')[1];
+        const token = req.headers['cookie'].split('=')[1];
         try {
             await this.authService.logout(token);
             res.clearCookie("accessToken");

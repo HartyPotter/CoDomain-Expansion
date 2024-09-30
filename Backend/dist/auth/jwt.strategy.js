@@ -20,7 +20,6 @@ let JwtStrategy = class JwtStrategy extends (0, passport_1.PassportStrategy)(pas
             let token = null;
             if (req && req.cookies) {
                 token = req.cookies['accessToken'];
-                console.log("Token from extractor: ", token);
             }
             return token;
         };
@@ -34,7 +33,6 @@ let JwtStrategy = class JwtStrategy extends (0, passport_1.PassportStrategy)(pas
     }
     async validate(req, payload) {
         const token = req.cookies?.accessToken;
-        console.log("Token from validate: ", token);
         const redis = await this.Redis.getClient();
         const user = await redis.hGetAll(`user:${token}`);
         if (!user || Object.keys(user).length === 0) {
@@ -43,9 +41,6 @@ let JwtStrategy = class JwtStrategy extends (0, passport_1.PassportStrategy)(pas
         if (user.id != payload.sub) {
             throw new common_1.UnauthorizedException("Wrong token.");
         }
-        console.log("Payloadddd: ", payload.sub);
-        console.log("User ID: ", user.id);
-        console.log("USER: ", user);
         const req_w_user = {
             id: payload.sub,
             first_name: user.first_name,

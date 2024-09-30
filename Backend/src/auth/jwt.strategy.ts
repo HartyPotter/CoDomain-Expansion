@@ -24,7 +24,6 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
       // Ensure the request has cookies
       if (req && req.cookies) {
         token = req.cookies['accessToken'];  // Extract token from the 'accessToken' cookie
-        console.log("Token from extractor: ", token);
       }
 
       return token;
@@ -41,18 +40,11 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
   async validate(req: Request, payload: any): Promise<RequestWithUser> {
     // const token = ExtractJwt.fromAuthHeaderAsBearerToken()(req);
     const token = req.cookies?.accessToken;
-    console.log("Token from validate: ", token);
 
     // Look up redis to extract more user data, or check if the token is revoked
     const redis = await this.Redis.getClient();
     const user = await redis.hGetAll(`user:${token}`)
 
-    // if (!user) {
-    //     console.log("No user found for user: ", token);
-    // }
-    // if (Object.keys(user).length === 0) {
-    //    console.log("___________________________________: ", token);
-    // }
     if (!user || Object.keys(user).length === 0) {
       throw new UnauthorizedException("User not logged in.");
     }
@@ -60,9 +52,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     if (user.id != payload.sub) {
       throw new UnauthorizedException("Wrong token.");
     }
-    console.log("Payloadddd: ", payload.sub);
-    console.log("User ID: ", user.id);
-    console.log("USER: ", user);
+
     const req_w_user: RequestWithUser = {
       id: payload.sub,
       first_name: user.first_name,

@@ -1,6 +1,6 @@
 import { 
-    Box, Button, Input, VStack, Center, Text, Alert, AlertIcon, FormControl, 
-    FormLabel, FormErrorMessage, ScaleFade, Slide 
+    Box, Button, Input, VStack, Text, Alert, AlertIcon, FormControl, 
+    FormLabel, FormErrorMessage, ScaleFade, Slide, Container, Heading, useColorModeValue
 } from '@chakra-ui/react';
 import { useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
@@ -8,18 +8,22 @@ import axios from 'axios';
 import { useState, useEffect } from 'react';
 import { Helmet } from 'react-helmet';
 import { useAuth } from '../contexts/AuthContext';
+import { motion } from 'framer-motion';
+
+const MotionBox = motion(Box);
 
 function LoginForm() {
     const navigate = useNavigate();
     const { register, handleSubmit, formState: { errors } } = useForm();
-    // const [username, setUsername] = useState('');
-    // const [password, setPassword] = useState('');
     const { login, user } = useAuth();
     const [errorMessage, setErrorMessage] = useState('');
     const [successMessage, setSuccessMessage] = useState('');
     const [isLoading, setIsLoading] = useState(false);
     const [showSuccess, setShowSuccess] = useState(false);
     const [showError, setShowError] = useState(false);
+
+    const bgColor = useColorModeValue("background.primary", "gray.800");
+    const cardBgColor = useColorModeValue("background.secondary", "gray.700");
 
     useEffect(() => {
         if (user) {
@@ -35,16 +39,12 @@ function LoginForm() {
             const response = await axios.post("http://localhost:3001/auth/login",
             { username, password }, {withCredentials: true });
             if (response.status === 200) {
-                console.log("SUCESSSSSSSS");
-                console.log("Cooooookieeee:", document.cookie);
                 login(response.data);
                 setSuccessMessage('Logged in successfully, redirecting...');
                 setErrorMessage('');
                 setShowSuccess(true);
                 setShowError(false);
-
                 setTimeout(() => navigate('/'), 3000);
-
             }
             else {
                 throw new Error('Log in failed');
@@ -66,70 +66,75 @@ function LoginForm() {
         <>
             <Helmet>
                 <title>Login - CoDom</title>
-                <meta name="description" content="Log in to MyApp and start collaborating on code!" />
+                <meta name="description" content="Log in to CoDom and start collaborating on code!" />
             </Helmet>
 
-            <Box maxW="sm" mx="auto" mt="10">
-                <Center>
-                    <Text as='b' fontSize='5xl'>
-                        Log in
-                    </Text>
-                </Center>
-
-                {/* Success message with ScaleFade animation */}
-                {showSuccess && (
-                    <ScaleFade in={showSuccess} initialScale={0.9}>
-                        <Alert status="success" mt={4}>
-                            <AlertIcon />
-                            {successMessage}
-                        </Alert>
-                    </ScaleFade>
-                )}
-
-                {/* Error message with Slide animation */}
-                {showError && (
-                    <Slide direction="bottom" in={showError} style={{ zIndex: 10 }}>
-                        <Alert status="error" mt={4}>
-                            <AlertIcon />
-                            {errorMessage}
-                        </Alert>
-                    </Slide>
-                )}
-               
-
-                <VStack spacing={4} as='form' onSubmit={handleSubmit(onSubmit)} mt={4}>
-
-                    <FormControl isInvalid={errors.username}>
-                        <FormLabel>Username</FormLabel>
-                        <Input {...register('username', { required: 'Username is required' })} />
-                        {errors.username && <FormErrorMessage>{errors.username.message}</FormErrorMessage>}
-                    </FormControl>
-
-                    <FormControl isInvalid={errors.password}>
-                        <FormLabel>Password</FormLabel>
-                        <Input type="password" {...register('password', { required: 'Password is required' })} />
-                        {errors.password && <FormErrorMessage>{errors.password.message}</FormErrorMessage>}
-                    </FormControl>
-
-
-                    <Button
-                        colorScheme="blue"
-                        type="submit"
-                        isLoading={isLoading}
-                        loadingText="Logging in..."
-                        isDisabled={isLoading}
+            <Box bg={bgColor} minH="100vh" py={10}>
+                <Container maxW="md">
+                    <MotionBox
+                        bg={cardBgColor}
+                        p={8}
+                        borderRadius="lg"
+                        boxShadow="xl"
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.5 }}
                     >
-                        Login
-                    </Button>
+                        <VStack spacing={6}>
+                            <Heading as="h1" size="xl">Log in</Heading>
 
-                    <Button variant="link" onClick={() => navigate("/register")}>
-                        Don't have an account? Register
-                    </Button>
-                </VStack>
+                            {showSuccess && (
+                                <ScaleFade initialScale={0.9} in={showSuccess}>
+                                    <Alert status="success">
+                                        <AlertIcon />
+                                        {successMessage}
+                                    </Alert>
+                                </ScaleFade>
+                            )}
+
+                            {showError && (
+                                <Slide direction="bottom" in={showError}>
+                                    <Alert status="error">
+                                        <AlertIcon />
+                                        {errorMessage}
+                                    </Alert>
+                                </Slide>
+                            )}
+
+                            <VStack spacing={4} as="form" onSubmit={handleSubmit(onSubmit)} w="100%">
+                                <FormControl isInvalid={errors.username}>
+                                    <FormLabel>Username</FormLabel>
+                                    <Input {...register('username', { required: 'Username is required' })} />
+                                    {errors.username && <FormErrorMessage>{errors.username.message}</FormErrorMessage>}
+                                </FormControl>
+
+                                <FormControl isInvalid={errors.password}>
+                                    <FormLabel>Password</FormLabel>
+                                    <Input type="password" {...register('password', { required: 'Password is required' })} />
+                                    {errors.password && <FormErrorMessage>{errors.password.message}</FormErrorMessage>}
+                                </FormControl>
+
+                                <Button
+                                    colorScheme="blue"
+                                    type="submit"
+                                    isLoading={isLoading}
+                                    loadingText="Logging in..."
+                                    isDisabled={isLoading}
+                                    w="100%"
+                                >
+                                    Login
+                                </Button>
+
+                                <Button variant="link" onClick={() => navigate("/register")}>
+                                    Don't have an account? Register
+                                </Button>
+                            </VStack>
+                        </VStack>
+                    </MotionBox>
+                </Container>
             </Box>
         </>
     );
 }
 
 export default LoginForm;
-

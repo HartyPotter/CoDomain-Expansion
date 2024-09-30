@@ -24,6 +24,7 @@ const Output = ({ editorRef, language, accessToken }) => {
             const { data: result } = await axios.post("http://localhost:3001/execute", { language, version, sourceCode}, config);
             console.log("RESPONSE FROM THE frontend TRY BLOCK //")
             setOutput(result.output.split('\n'));
+            
             // if (result.run.stderr) {
             //     setError(true);
             //     toast({

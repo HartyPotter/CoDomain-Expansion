@@ -73,7 +73,7 @@ export class AuthController {
 
   @Post('logout')
   async logout(@Req() req: Request, @Res({ passthrough: true }) res: Response) {
-    const token = req.headers['authorization'].split(' ')[1];
+    const token = req.headers['cookie'].split('=')[1]
 
 	  try {
 
@@ -88,7 +88,6 @@ export class AuthController {
 
   @Get('profile')
   async getProfile(@Req() req: requestWithUser) {
-    // console.log("HEADERSSSSSS: -------", req.headers);
     return req.user;
   }
 

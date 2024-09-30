@@ -11,16 +11,10 @@ export const AuthProvider = ({ children }) => {
   useEffect(() => {
     const checkLoggedInUser = async () => {
       try {
-        console.log("All Cookies:", Cookies.get());
-          const response = await axios.get("http://localhost:3001/auth/profile", {
+        const response = await axios.get("http://localhost:3001/auth/profile", {
               withCredentials: true,
           })
-        // const response = await fetch('http://localhost:3001/auth/profile', {
-        //   method: 'GET',
-        //   credentials: 'include'
-        // });
 
-        console.log("User if exist: ", response.data);
         setUser(response.data); // Set the user if valid session exists
       } catch (error) {
           setUser(null); // No user session exists, reset the user
@@ -32,24 +26,9 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   const login = async (userData) => {
-    console.log("All Cookies:", Cookies.get());
     setUser(userData);
     return;
   };
-
-  // const logout = async (token) => {
-  //   if (token) {
-  //     try {
-  //       await axios.post('http://localhost:3001/auth/logout', {}, {
-  //           headers: { Authorization: `Bearer ${token}` }
-  //       });
-  //       setUser(null);
-  //       Cookies.remove('accessToken');
-  //     } catch (error) {
-  //             console.log('Failed to logout', error);
-  //     }
-  //   }
-  // };
 
   const logout = async () => {
     try {

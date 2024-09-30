@@ -1,6 +1,6 @@
 import { 
     Box, Button, Input, VStack, Center, Text, Alert, AlertIcon, FormControl, 
-    FormLabel, FormErrorMessage, ScaleFade, Slide 
+    FormLabel, FormErrorMessage, ScaleFade, Slide, Container, Heading, useColorModeValue
 } from '@chakra-ui/react';
 import { useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
@@ -8,6 +8,9 @@ import axios from 'axios';
 import { useState, useEffect } from 'react';
 import { Helmet } from 'react-helmet';
 import { useAuth } from '../contexts/AuthContext';
+import { motion } from 'framer-motion';
+
+const MotionBox = motion(Box);
 
 function RegisterForm() {
     const navigate = useNavigate();
@@ -19,7 +22,9 @@ function RegisterForm() {
     const [showError, setShowError] = useState(false);
     const { user } = useAuth();
 
-    // Redirect to home page if user is already logged in
+    const bgColor = useColorModeValue("background.primary", "gray.800");
+    const cardBgColor = useColorModeValue("background.secondary", "gray.700");
+
     useEffect(() => {
         if (user) {
             navigate('/');
@@ -44,8 +49,6 @@ function RegisterForm() {
                 setErrorMessage('');
                 setShowSuccess(true);
                 setShowError(false);
-
-                // Optionally navigate to login page after a delay
                 setTimeout(() => navigate('/login'), 3000);
             } else {
                 throw new Error('Registration failed');
@@ -65,101 +68,108 @@ function RegisterForm() {
         <>
             <Helmet>
                 <title>Register - CoDom</title>
-                <meta name="description" content="Sign up for MyApp and start collaborating on code!" />
+                <meta name="description" content="Sign up for CoDom and start collaborating on code!" />
             </Helmet>
 
-            <Box maxW="sm" mx="auto" mt="10">
-                <Center>
-                    <Text as="b" fontSize="5xl">
-                        Sign up
-                    </Text>
-                </Center>
-
-                {/* Success message with ScaleFade animation */}
-                {showSuccess && (
-                    <ScaleFade in={showSuccess} initialScale={0.9}>
-                        <Alert status="success" mt={4}>
-                            <AlertIcon />
-                            {successMessage}
-                        </Alert>
-                    </ScaleFade>
-                )}
-
-                {/* Error message with Slide animation */}
-                {showError && (
-                    <Slide direction="bottom" in={showError} style={{ zIndex: 10 }}>
-                        <Alert status="error" mt={4}>
-                            <AlertIcon />
-                            {errorMessage}
-                        </Alert>
-                    </Slide>
-                )}
-
-                <VStack spacing={4} as="form" onSubmit={handleSubmit(onSubmit)} mt={6}>
-                    <FormControl isInvalid={errors.first_name}>
-                        <FormLabel>First Name</FormLabel>
-                        <Input {...register('first_name', { required: 'First name is required' })} />
-                        {errors.first_name && <FormErrorMessage>{errors.first_name.message}</FormErrorMessage>}
-                    </FormControl>
-
-                    <FormControl isInvalid={errors.last_name}>
-                        <FormLabel>Last Name</FormLabel>
-                        <Input {...register('last_name', { required: 'Last name is required' })} />
-                        {errors.last_name && <FormErrorMessage>{errors.last_name.message}</FormErrorMessage>}
-                    </FormControl>
-
-                    <FormControl isInvalid={errors.age}>
-                        <FormLabel>Age</FormLabel>
-                        <Input {...register('age', {
-                            required: 'Age is required',
-                            pattern: { value: /^[0-9]+$/, message: 'Age must be a number' },
-                        })} />
-                        {errors.age && <FormErrorMessage>{errors.age.message}</FormErrorMessage>}
-                    </FormControl>
-
-                    <FormControl isInvalid={errors.username}>
-                        <FormLabel>Username</FormLabel>
-                        <Input {...register('username', { required: 'Username is required' })} />
-                        {errors.username && <FormErrorMessage>{errors.username.message}</FormErrorMessage>}
-                    </FormControl>
-
-                    <FormControl isInvalid={errors.email}>
-                        <FormLabel>Email</FormLabel>
-                        <Input
-                            type="email"
-                            {...register('email', {
-                                required: 'Email is required',
-                                pattern: { value: /\S+@\S+\.\S+/, message: 'Email is invalid' },
-                            })}
-                        />
-                        {errors.email && <FormErrorMessage>{errors.email.message}</FormErrorMessage>}
-                    </FormControl>
-
-                    <FormControl isInvalid={errors.password}>
-                        <FormLabel>Password</FormLabel>
-                        <Input
-                            type="password"
-                            {...register('password', { required: 'Password is required' })}
-                        />
-                        {errors.password && <FormErrorMessage>{errors.password.message}</FormErrorMessage>}
-                    </FormControl>
-
-                    {/* Show Spinner when form is submitting */}
-                    <Button
-                        colorScheme="blue"
-                        type="submit"
-                        isLoading={isLoading}
-                        loadingText="Submitting..."
-                        isDisabled={isLoading}
+            <Box bg={bgColor} minH="100vh" py={10}>
+                <Container maxW="md">
+                    <MotionBox
+                        bg={cardBgColor}
+                        p={8}
+                        borderRadius="lg"
+                        boxShadow="xl"
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.5 }}
                     >
-                        Register
-                    </Button>
+                        <VStack spacing={6}>
+                            <Heading as="h1" size="xl">Sign up</Heading>
 
-                    {/* Link to navigate to login */}
-                    <Button variant="link" onClick={() => navigate('/login')}>
-                        Already have an account? Login
-                    </Button>
-                </VStack>
+                            {showSuccess && (
+                                <ScaleFade initialScale={0.9} in={showSuccess}>
+                                    <Alert status="success">
+                                        <AlertIcon />
+                                        {successMessage}
+                                    </Alert>
+                                </ScaleFade>
+                            )}
+
+                            {showError && (
+                                <Slide direction="bottom" in={showError}>
+                                    <Alert status="error">
+                                        <AlertIcon />
+                                        {errorMessage}
+                                    </Alert>
+                                </Slide>
+                            )}
+
+                            <VStack spacing={4} as="form" onSubmit={handleSubmit(onSubmit)} w="100%">
+                                <FormControl isInvalid={errors.first_name}>
+                                    <FormLabel>First Name</FormLabel>
+                                    <Input {...register('first_name', { required: 'First name is required' })} />
+                                    {errors.first_name && <FormErrorMessage>{errors.first_name.message}</FormErrorMessage>}
+                                </FormControl>
+
+                                <FormControl isInvalid={errors.last_name}>
+                                    <FormLabel>Last Name</FormLabel>
+                                    <Input {...register('last_name', { required: 'Last name is required' })} />
+                                    {errors.last_name && <FormErrorMessage>{errors.last_name.message}</FormErrorMessage>}
+                                </FormControl>
+
+                                <FormControl isInvalid={errors.age}>
+                                    <FormLabel>Age</FormLabel>
+                                    <Input {...register('age', {
+                                        required: 'Age is required',
+                                        pattern: { value: /^[0-9]+$/, message: 'Age must be a number' },
+                                    })} />
+                                    {errors.age && <FormErrorMessage>{errors.age.message}</FormErrorMessage>}
+                                </FormControl>
+
+                                <FormControl isInvalid={errors.username}>
+                                    <FormLabel>Username</FormLabel>
+                                    <Input {...register('username', { required: 'Username is required' })} />
+                                    {errors.username && <FormErrorMessage>{errors.username.message}</FormErrorMessage>}
+                                </FormControl>
+
+                                <FormControl isInvalid={errors.email}>
+                                    <FormLabel>Email</FormLabel>
+                                    <Input
+                                        type="email"
+                                        {...register('email', {
+                                            required: 'Email is required',
+                                            pattern: { value: /\S+@\S+\.\S+/, message: 'Email is invalid' },
+                                        })}
+                                    />
+                                    {errors.email && <FormErrorMessage>{errors.email.message}</FormErrorMessage>}
+                                </FormControl>
+
+                                <FormControl isInvalid={errors.password}>
+                                    <FormLabel>Password</FormLabel>
+                                    <Input
+                                        type="password"
+                                        {...register('password', { required: 'Password is required' })}
+                                    />
+                                    {errors.password && <FormErrorMessage>{errors.password.message}</FormErrorMessage>}
+                                </FormControl>
+
+                                <Button
+                                    colorScheme="blue"
+                                    type="submit"
+                                    isLoading={isLoading}
+                                    loadingText="Submitting..."
+                                    isDisabled={isLoading}
+                                    w="100%"
+                                >
+                                    Register
+                                </Button>
+
+                                <Button variant="link" onClick={() => navigate('/login')}>
+                                    Already have an account? Login
+                                </Button>
+                            </VStack>
+                        </VStack>
+                    </MotionBox>
+                </Container>
             </Box>
         </>
     );

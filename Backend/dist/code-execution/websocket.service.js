@@ -16,7 +16,7 @@ let WebSocketService = class WebSocketService {
         console.log('WebSocket server started on port 4000');
         this.wss.on('connection', (ws) => {
             console.log('New connection');
-            const docker = (0, child_process_1.spawn)('docker', ['run', '-it', 'python:3.9-slim', 'bash']);
+            const docker = (0, child_process_1.spawn)('winpty', ['docker', 'run', '-it', 'python:3.9-slim', 'bash']);
             docker.stdout.on('data', (data) => {
                 ws.send(data.toString());
             });

@@ -20,7 +20,6 @@ export const AuthProvider = ({ children }) => {
         //   credentials: 'include'
         // });
 
-        console.log("User if exist: ", response.data);
         setUser(response.data); // Set the user if valid session exists
       } catch (error) {
           setUser(null); // No user session exists, reset the user

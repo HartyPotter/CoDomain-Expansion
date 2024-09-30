@@ -16,7 +16,6 @@ exports.ProjectsController = void 0;
 const common_1 = require("@nestjs/common");
 const projects_service_1 = require("./projects.service");
 const client_1 = require("@prisma/client");
-const public_decorator_1 = require("../auth/decorators/public.decorator");
 let ProjectsController = class ProjectsController {
     constructor(projectsService) {
         this.projectsService = projectsService;
@@ -39,7 +38,6 @@ let ProjectsController = class ProjectsController {
 };
 exports.ProjectsController = ProjectsController;
 __decorate([
-    (0, public_decorator_1.Public)(),
     (0, common_1.Post)(':id'),
     __param(0, (0, common_1.Body)()),
     __param(1, (0, common_1.Param)('id')),

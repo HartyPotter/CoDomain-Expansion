@@ -24,7 +24,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
       // Ensure the request has cookies
       if (req && req.cookies) {
         token = req.cookies['accessToken'];  // Extract token from the 'accessToken' cookie
-        console.log("Token from extractor: ", token);
+        // console.log("Token from extractor: ", token);
       }
 
       return token;
@@ -60,9 +60,6 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     if (user.id != payload.sub) {
       throw new UnauthorizedException("Wrong token.");
     }
-    console.log("Payloadddd: ", payload.sub);
-    console.log("User ID: ", user.id);
-    console.log("USER: ", user);
     const req_w_user: RequestWithUser = {
       id: payload.sub,
       first_name: user.first_name,

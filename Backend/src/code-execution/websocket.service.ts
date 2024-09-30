@@ -14,7 +14,7 @@ export class WebSocketService implements OnModuleInit, OnModuleDestroy {
         this.wss.on('connection', (ws) => {
             console.log('New connection');
 
-            const docker = spawn('docker', ['run', '-it', 'python:3.9-slim', 'bash']);
+            const docker = spawn('winpty', ['docker', 'run', '-it', 'python:3.9-slim', 'bash']);
 
             docker.stdout.on('data', (data) => {
                 ws.send(data.toString());

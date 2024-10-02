@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import axios from 'axios';
-import { spawn } from 'child_process'
-import { WebSocketServer } from 'ws'
+import { spawn } from 'child_process';
+import { WebSocketServer } from 'ws';
 
 const Docker = require('simple-dockerode');
 const docker = new Docker();

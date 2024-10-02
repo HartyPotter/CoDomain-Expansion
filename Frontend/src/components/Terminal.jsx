@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Terminal } from '@xterm/xterm';
 import { FitAddon } from 'xterm-addon-fit';
 import 'xterm/css/xterm.css';
@@ -34,9 +34,14 @@ const TerminalComponent = () => {
             term.write('\r\n$ ');
         };
 
-        socketRef.current.onmessage = (event) => {
-            console.log('RECEIVED MESSAGE: ', event.data);
-            term.write(event.data);
+        socketRef.current.onmessage = async ({ data }) => {
+            if (data instanceof Blob) {
+                console.log("TRUEEEEEEEEEEE\n");
+                const text = await data.text(); // Convert Blob to text
+                term.write(text);
+            } else {
+                term.write(data); // If it's already a string
+            }
         };
 
         socketRef.current.onclose = () => {

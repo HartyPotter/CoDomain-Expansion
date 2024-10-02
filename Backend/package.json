@@ -26,14 +26,15 @@
     "@prisma/client": "^5.18.0",
     "axios": "^1.7.4",
     "bcryptjs": "^2.4.3",
-    "simple-dockerode": "0.2.2",
+    "class-validator": "^0.14.1",
+    "cookie-parser": "^1.4.6",
+    "dotenv": "^16.4.5",
+    "node-pty": "^1.0.0",
     "prisma": "^5.18.0",
     "redis": "^4.7.0",
     "reflect-metadata": "^0.2.0",
-    "class-validator": "^0.14.1",
-    "cookie-parser": "^1.4.6",
     "rxjs": "^7.8.1",
-    "dotenv": "^16.4.5"
+    "simple-dockerode": "0.2.2"
   },
   "devDependencies": {
     "@nestjs/cli": "^10.0.0",

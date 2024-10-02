@@ -1,7 +1,7 @@
-// websocket.service.ts
 import { Injectable, OnModuleInit, OnModuleDestroy } from '@nestjs/common';
-import { WebSocketServer } from 'ws';
-import { spawn } from 'child_process';
+import { WebSocketServer, createWebSocketStream } from 'ws';
+// Import pty using require if import is not working
+const pty = require('node-pty');
 
 @Injectable()
 export class WebSocketService implements OnModuleInit, OnModuleDestroy {
@@ -9,40 +9,39 @@ export class WebSocketService implements OnModuleInit, OnModuleDestroy {
 
     onModuleInit() {
         this.wss = new WebSocketServer({ port: 4000 });
-        console.log('WebSocket server started on port 4000');
 
         this.wss.on('connection', (ws) => {
-            console.log('New connection');
+            console.log('New connection established');
 
-            const docker = spawn('winpty', ['docker', 'run', '-it', 'python:3.9-slim', 'bash']);
+            const duplex = createWebSocketStream(ws, { encoding: 'utf8' });
 
-            docker.stdout.on('data', (data) => {
-                ws.send(data.toString());
+            // Ensure that pty.spawn is available and correctly used
+            const proc = pty.spawn('docker', ['run', "--rm", "-ti", "python:3.9-slim", "bash"], {
+                name: 'xterm-color',
             });
 
-            docker.stderr.on('data', (data) => {
-                ws.send(data.toString());
+            const onData = proc.onData((data) => duplex.write(data));
+
+            const exit = proc.onExit(() => {
+                console.log("Process exited");
+                onData.dispose();
+                exit.dispose();
             });
 
-            ws.on('message', (message) => {
-                docker.stdin.write(message + '\n');
-            });
+            duplex.on('data', (data) => proc.write(data.toString()));
 
-            docker.on('close', (code) => {
-                console.log(`Docker process exited with code ${code}`);
-                ws.close();
-            });
-
-            ws.on('close', () => {
-                console.log('WebSocket closed');
-                docker.kill();
+            ws.on('close', function () {
+                console.log('Stream closed');
+                proc.kill();
+                duplex.destroy();
             });
         });
     }
 
     onModuleDestroy() {
-        this.wss.close(() => {
-            console.log('WebSocket server closed');
-        });
+        if (this.wss) {
+            console.log('Closing WebSocket server');
+            this.wss.close();
+        }
     }
 }

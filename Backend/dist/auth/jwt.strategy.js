@@ -33,7 +33,6 @@ let JwtStrategy = class JwtStrategy extends (0, passport_1.PassportStrategy)(pas
     }
     async validate(req, payload) {
         const token = req.cookies?.accessToken;
-        console.log("Token from validate: ", token);
         const redis = await this.Redis.getClient();
         const user = await redis.hGetAll(`user:${token}`);
         if (!user || Object.keys(user).length === 0) {

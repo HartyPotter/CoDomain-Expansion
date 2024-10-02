@@ -41,7 +41,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
   async validate(req: Request, payload: any): Promise<RequestWithUser> {
     // const token = ExtractJwt.fromAuthHeaderAsBearerToken()(req);
     const token = req.cookies?.accessToken;
-    console.log("Token from validate: ", token);
+    // console.log("Token from validate: ", token);
 
     // Look up redis to extract more user data, or check if the token is revoked
     const redis = await this.Redis.getClient();

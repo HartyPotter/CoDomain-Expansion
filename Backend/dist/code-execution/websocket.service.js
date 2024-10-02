@@ -9,37 +9,35 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.WebSocketService = void 0;
 const common_1 = require("@nestjs/common");
 const ws_1 = require("ws");
-const child_process_1 = require("child_process");
+const pty = require('node-pty');
 let WebSocketService = class WebSocketService {
     onModuleInit() {
         this.wss = new ws_1.WebSocketServer({ port: 4000 });
-        console.log('WebSocket server started on port 4000');
         this.wss.on('connection', (ws) => {
-            console.log('New connection');
-            const docker = (0, child_process_1.spawn)('winpty', ['docker', 'run', '-it', 'python:3.9-slim', 'bash']);
-            docker.stdout.on('data', (data) => {
-                ws.send(data.toString());
+            console.log('New connection established');
+            const duplex = (0, ws_1.createWebSocketStream)(ws, { encoding: 'utf8' });
+            const proc = pty.spawn('docker', ['run', "--rm", "-ti", "python:3.9-slim", "bash"], {
+                name: 'xterm-color',
             });
-            docker.stderr.on('data', (data) => {
-                ws.send(data.toString());
+            const onData = proc.onData((data) => duplex.write(data));
+            const exit = proc.onExit(() => {
+                console.log("Process exited");
+                onData.dispose();
+                exit.dispose();
             });
-            ws.on('message', (message) => {
-                docker.stdin.write(message + '\n');
-            });
-            docker.on('close', (code) => {
-                console.log(`Docker process exited with code ${code}`);
-                ws.close();
-            });
-            ws.on('close', () => {
-                console.log('WebSocket closed');
-                docker.kill();
+            duplex.on('data', (data) => proc.write(data.toString()));
+            ws.on('close', function () {
+                console.log('Stream closed');
+                proc.kill();
+                duplex.destroy();
             });
         });
     }
     onModuleDestroy() {
-        this.wss.close(() => {
-            console.log('WebSocket server closed');
-        });
+        if (this.wss) {
+            console.log('Closing WebSocket server');
+            this.wss.close();
+        }
     }
 };
 exports.WebSocketService = WebSocketService;

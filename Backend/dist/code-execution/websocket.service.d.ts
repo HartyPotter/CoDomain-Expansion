@@ -3,4 +3,5 @@ export declare class WebSocketService implements OnModuleInit, OnModuleDestroy {
     private wss;
     onModuleInit(): void;
     onModuleDestroy(): void;
+    executeCode(code: string): Promise<void>;
 }

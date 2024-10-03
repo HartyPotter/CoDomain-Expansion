@@ -10,7 +10,7 @@ exports.CodeExecutionService = void 0;
 const common_1 = require("@nestjs/common");
 const child_process_1 = require("child_process");
 const ws_1 = require("ws");
-const Docker = require('simple-dockerode');
+const Docker = require('dockerode');
 const docker = new Docker();
 const { PassThrough } = require('stream');
 const util = require('util');
@@ -31,7 +31,6 @@ let exec = null;
 let stream = null;
 let CodeExecutionService = class CodeExecutionService {
     async startContainer() {
-        console.log("STARTED CONTAINER\n");
         volume = await docker.createVolume({
             Name: `volume_1`,
             Driver: 'local',
@@ -45,18 +44,16 @@ let CodeExecutionService = class CodeExecutionService {
         });
         await container.start();
         const exec = await container.exec({
-            Cmd: ['/bin/bash'],
+            Cmd: ['bin/bash'],
             AttachStdin: true,
             AttachStdout: true,
             AttachStderr: true,
             Tty: true,
         });
-        stream = await exec.start();
     }
     async executeCode(code, language, version) {
         if (!container)
             await this.startContainer();
-        console.log("Why Reaching Here????\n");
         const exec = await container.exec({
             Cmd: ['bash', '-c', `
     cat <<EOF > /app/code.py
@@ -70,6 +67,7 @@ EOF
         });
         const stream = await exec.start();
         const output = await getStreamData(stream);
+        console.log(output.toString());
         return { output: output.toString() };
     }
     async executeTerminal(command) {

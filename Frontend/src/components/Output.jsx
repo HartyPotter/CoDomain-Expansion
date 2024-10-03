@@ -2,12 +2,14 @@ import { useState } from "react";
 import { Box, Button, Text, Input, useToast } from "@chakra-ui/react"
 import axios from "axios";
 import { LANGUAGE_VERSIONS } from "../constants.js";
+import { useAuth } from '../contexts/AuthContext';
 
 const Output = ({ editorRef, language, accessToken }) => {
     const [output, setOutput] = useState(null);
     const [command, setCommand] = useState('');
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState(false);
+    const { user, logout } = useAuth();
     const toast = useToast();
 
     const runCode = async () => {
@@ -18,9 +20,7 @@ const Output = ({ editorRef, language, accessToken }) => {
             setIsLoading(true);
             const version = LANGUAGE_VERSIONS[language];
             let config = {
-                headers: {
-                    Authorization: `Bearer ${accessToken}`,
-                }
+                withCredentials: true,
             }
             const { data: result } = await axios.post("http://localhost:3001/execute", { language, version, sourceCode}, config);
             console.log("RESPONSE FROM THE frontend TRY BLOCK //")

@@ -7,6 +7,7 @@ import Output from "./Output";
 import { useNavigate } from "react-router-dom";
 import { Helmet } from 'react-helmet';
 import { useAuth } from '../contexts/AuthContext';
+import TerminalComponent from './Terminal';
 
 const CodeEditor = () => {
     const navigate = useNavigate();
@@ -60,7 +61,9 @@ const CodeEditor = () => {
                         value={value}
                         onChange={(value) => setValue(value)} />
                     </Box>
-                    <Output editorRef={editorRef} language={language} />
+                    <Box w="50%">
+                        <TerminalComponent />
+                    </Box>
                 </HStack>
             </Box>
         </>

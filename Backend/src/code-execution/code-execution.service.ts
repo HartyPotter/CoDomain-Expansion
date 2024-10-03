@@ -2,8 +2,9 @@ import { Injectable } from '@nestjs/common';
 import axios from 'axios';
 import { spawn } from 'child_process';
 import { WebSocketServer } from 'ws';
+// import Docker from 'dockerode';
 
-const Docker = require('simple-dockerode');
+const Docker = require('dockerode');
 const docker = new Docker();
 const { PassThrough } = require('stream');
 const util = require('util');
@@ -35,7 +36,6 @@ export class CodeExecutionService {
 
 
     async startContainer() {
-        console.log("STARTED CONTAINER\n");
         volume = await docker.createVolume({
             Name: `volume_1`,
             Driver: 'local',
@@ -51,14 +51,27 @@ export class CodeExecutionService {
 
         await container.start();
 
+        // dockerode
         const exec = await container.exec({
-            Cmd: ['/bin/bash'],
+            Cmd: ['bin/bash'],
             AttachStdin: true,
             AttachStdout: true,
             AttachStderr: true,
             Tty: true,  // TTY for interactive terminal
         })
-        stream = await exec.start();
+        
+        // console.log("STARTED CONTAINER AND VOLUME\n");
+
+        // simple-dockerode
+        // const exec = await container.exec(['bin/bash'], {
+        //     stdin: true,
+        //     stdout: true,
+        //     stderr: true,
+        //     live: true,
+        // })
+
+
+        // stream = await exec.start();
         // console.log("Steam: ", stream);
     }
 
@@ -95,7 +108,11 @@ export class CodeExecutionService {
         if (!container)
             await this.startContainer();
 
-        console.log("Why Reaching Here????\n");
+        // console.log("FUCKKKK");
+
+        // console.log("Why Reaching Here????\n");
+
+        // dockerode
         const exec = await container.exec({
             Cmd: ['bash', '-c', `
     cat <<EOF > /app/code.py
@@ -107,8 +124,22 @@ EOF
             AttachStderr: true,
             Tty: true,  // TTY for interactive terminal
         })
+
+        // simple-dockerode
+//         const exec = await container.exec([`bash -c
+//     cat <<EOF > /app/code.py
+// ${code}
+// EOF`
+//     , 'python /app/code.py'], {
+//             stdin: true,
+//             stdout: true,
+//             stderr: true,
+//             live: true,  // TTY for interactive terminal
+//         })
+
         const stream = await exec.start();
         const output = await getStreamData(stream); // Capture the output stream
+        console.log(output.toString());
         return { output: output.toString() };
 
         // const logs = await getStreamData(logsStream);

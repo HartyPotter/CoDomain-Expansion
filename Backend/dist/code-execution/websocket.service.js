@@ -10,15 +10,17 @@ exports.WebSocketService = void 0;
 const common_1 = require("@nestjs/common");
 const ws_1 = require("ws");
 const pty = require('node-pty');
+let proc = null;
+let duplex = null;
+const code = `import datetime; print(datetime.date.today())`;
 let WebSocketService = class WebSocketService {
     onModuleInit() {
         this.wss = new ws_1.WebSocketServer({ port: 4000 });
         this.wss.on('connection', (ws) => {
             console.log('New connection established');
-            const duplex = (0, ws_1.createWebSocketStream)(ws, { encoding: 'utf8' });
-            const proc = pty.spawn('docker', ['run', "--rm", "-ti", "python:3.9-slim", "bash"], {
-                name: 'xterm-color',
-            });
+            duplex = (0, ws_1.createWebSocketStream)(ws, { encoding: 'utf8' });
+            const create_volume = pty.spawn('docker', ['volume', 'create', '--name', 'volume_1']);
+            proc = pty.spawn('docker', ['run', "--rm", "-ti", "-v", "volume_1:/app", "python:3.9-slim", "bash"]);
             const onData = proc.onData((data) => duplex.write(data));
             const exit = proc.onExit(() => {
                 console.log("Process exited");
@@ -26,6 +28,12 @@ let WebSocketService = class WebSocketService {
                 exit.dispose();
             });
             duplex.on('data', (data) => proc.write(data.toString()));
+            if (ws.readyState == ws_1.WebSocket.OPEN) {
+                console.log("WS IS OPEN");
+                proc.write(`
+                    echo "${code}" > /app/code.py
+                `);
+            }
             ws.on('close', function () {
                 console.log('Stream closed');
                 proc.kill();
@@ -38,6 +46,9 @@ let WebSocketService = class WebSocketService {
             console.log('Closing WebSocket server');
             this.wss.close();
         }
+    }
+    async executeCode(code) {
+        proc.write('python /app/code.py');
     }
 };
 exports.WebSocketService = WebSocketService;

@@ -43,9 +43,10 @@ export class WebSocketService implements OnModuleInit, OnModuleDestroy {
 
             console.log("WS IS OPEN");
 
+            setTimeout(() => {
 
-            // needs Timeout
-            proc.write(`echo \"${code}\" > /app/code.py\r`);
+                proc.write(`echo \"${code}\" > /app/code.py\r`);
+            }, 2000);
 
 
             duplex.on('error', (err) => {

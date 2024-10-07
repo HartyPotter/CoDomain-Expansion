@@ -28,7 +28,9 @@ let WebSocketService = class WebSocketService {
             });
             duplex.on('data', (data) => proc.write(data.toString()));
             console.log("WS IS OPEN");
-            proc.write(`echo \"${code}\" > /app/code.py\r`);
+            setTimeout(() => {
+                proc.write(`echo \"${code}\" > /app/code.py\r`);
+            }, 2000);
             duplex.on('error', (err) => {
                 console.log("Error: ", err);
             });

@@ -41,17 +41,9 @@ let ProjectsService = class ProjectsService {
         });
     }
     async findCollaborators(id) {
-        const project = await this.databaseService.project.findUnique({
-            where: {
-                id,
-            },
-            select: {
-                id: true,
-            }
-        });
         const collaborators = await this.databaseService.userProject.findMany({
             where: {
-                projectId: project.id,
+                projectId: id,
             },
             select: {
                 user: {

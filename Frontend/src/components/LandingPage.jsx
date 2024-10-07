@@ -1,10 +1,45 @@
-import { Box, Heading, Text, Button, VStack, HStack, Center, Image } from '@chakra-ui/react';
+import { Box, Heading, Text, Grid, GridItem, Button, VStack, HStack, Center, Image } from '@chakra-ui/react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
+import { useEffect, useState } from 'react';
+import axios from 'axios';
 
 function LandingPage() {
   const navigate = useNavigate();
   const { user, logout } = useAuth(); // Add user and logout from useAuth
+  const [projects, setProjects] = useState([]);
+
+  const getUserProjects = async () => {
+    if (user) {
+      // console.log("USER: ", user);
+      try {
+        const response = await axios.get(`http://localhost:3001/users/${user.id}/projects`, {
+          withCredentials: true,
+        });
+        console.log("User Projects: ", response.data);
+        setProjects(response.data);
+      }
+      catch (err) {
+        console.error(err);
+      }
+    }
+  };
+
+  const createProject = async (name, language, isPublic) => {
+    try {
+      await axios.post(`http://localhost:3001/projects/${user.id}`, {
+        withCredentials: true,
+      });
+      console.log("USER CREATED SUCCESSFULLY");
+    }
+    catch (err) {
+      console.log(err);
+    }
+  };
+
+  useEffect(() => {
+    getUserProjects();
+  }, [user]);
 
   return (
     <Box>
@@ -51,6 +86,29 @@ function LandingPage() {
           </VStack>
         </Center>
       </Box>
+
+      {/* User Projects Section */}
+      {user && projects.length > 0 && (
+        <Box as="section" py={20}>
+          <Center>
+            <VStack spacing={6} maxW="800px" textAlign="center">
+              <Heading as="h2" size="xl">Your Projects</Heading>
+              {projects.map((Wrapper) => (
+                <Box key={Wrapper.project.id} borderWidth="1px" borderRadius="lg" p={4} w="100%">
+                  <Heading size="md">{Wrapper.project.name}</Heading>
+                  <Text fontSize="sm" color="gray.500">{Wrapper.project.language}</Text>
+                  <Button mt={2} colorScheme="blue">
+                    Open Project
+                  </Button>
+                </Box>
+              ))}
+            </VStack>
+          </Center>
+        </Box>
+      )}
+
+      {/* Create Project Section */}
+
 
       {/* Features Section */}
       <Box as="section" py={20}>

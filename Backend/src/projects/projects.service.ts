@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { DatabaseService } from 'src/PostgresDB/database.service'
 import { Prisma } from '@prisma/client'
-import {dateTimestampProvider} from "rxjs/internal/scheduler/dateTimestampProvider";
+import { dateTimestampProvider } from "rxjs/internal/scheduler/dateTimestampProvider";
 
 @Injectable()
 export class ProjectsService {
@@ -39,17 +39,22 @@ export class ProjectsService {
   // }
 
   async findCollaborators(id: number) {
-    const project = await this.databaseService.project.findUnique({
-      where: {
-        id,
-      },
-      select: {
-        id: true,
-      }
-    });
+    // const project = await this.databaseService.project.findUnique({
+    //   where: {
+    //     id,
+    //   },
+    //   select: {
+    //     id: true,
+    //   }
+    // });
+
+    // return the records from UserProject Table
+    // which have projectId: id
+    // select the user field of these records
+    // return the usernames
     const collaborators = await this.databaseService.userProject.findMany({
       where: {
-        projectId: project.id,
+        projectId: id,
       },
       select: {
         user: {

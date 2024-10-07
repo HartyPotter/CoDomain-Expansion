@@ -58,6 +58,13 @@ export declare class UsersService {
         createdAt: Date;
         updatedAt: Date;
     }>;
+    findUserProjects(id: number): Promise<{
+        project: {
+            id: number;
+            name: string;
+            language: string;
+        };
+    }[]>;
     update(id: number, updateUserDto: Prisma.UserUpdateInput): Promise<{
         id: number;
         first_name: string;

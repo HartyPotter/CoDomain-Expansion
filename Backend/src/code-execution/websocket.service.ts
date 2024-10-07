@@ -27,6 +27,7 @@ export class WebSocketService implements OnModuleInit, OnModuleDestroy {
             const executeSilentCommand = (command: string) => {
                 isOutputEnabled = false;
                 proc.write(command);
+                
                 setTimeout(() => {
                     isOutputEnabled = true;
                 }, 100)

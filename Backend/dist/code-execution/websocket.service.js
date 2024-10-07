@@ -12,6 +12,7 @@ const ws_1 = require("ws");
 const websocketStream = require("websocket-stream");
 const pty = require('node-pty');
 const code = "import datetime; print(datetime.date.today())";
+let isOutputEnabled = true;
 let WebSocketService = class WebSocketService {
     onModuleInit() {
         this.wss = new ws_1.WebSocketServer({ port: 4000 });
@@ -20,7 +21,19 @@ let WebSocketService = class WebSocketService {
             const duplex = websocketStream(ws, { encoding: 'utf8' });
             const create_volume = pty.spawn('docker', ['volume', 'create', '--name', 'volume_1']);
             const proc = pty.spawn('docker', ['run', "--rm", "-ti", "-v", "volume_1:/app", "python:3.9-slim", "bash"]);
-            const onData = proc.onData((data) => duplex.write(data));
+            const executeSilentCommand = (command) => {
+                isOutputEnabled = false;
+                proc.write(command);
+                setTimeout(() => {
+                    isOutputEnabled = true;
+                }, 100);
+            };
+            const onData = proc.onData((data) => {
+                console.log("Process Received Data: ", data);
+                if (isOutputEnabled) {
+                    duplex.write(data);
+                }
+            });
             const exit = proc.onExit(() => {
                 console.log("Process exited");
                 onData.dispose();
@@ -29,7 +42,7 @@ let WebSocketService = class WebSocketService {
             duplex.on('data', (data) => proc.write(data.toString()));
             console.log("WS IS OPEN");
             setTimeout(() => {
-                proc.write(`echo \"${code}\" > /app/code.py\r`);
+                executeSilentCommand(`echo \"${code}\" >> /app/code.py \r`);
             }, 2000);
             duplex.on('error', (err) => {
                 console.log("Error: ", err);

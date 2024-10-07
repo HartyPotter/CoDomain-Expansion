@@ -39,7 +39,8 @@ const TerminalComponent = () => {
                 console.log("TRUEEEEEEEEEEE\n");
                 const text = await data.text(); // Convert Blob to text
                 term.write(text);
-            } else {
+            } 
+            else {
                 term.write(data); // If it's already a string
             }
         };

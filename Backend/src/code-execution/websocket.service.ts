@@ -1,12 +1,11 @@
 import { Injectable, OnModuleInit, OnModuleDestroy } from '@nestjs/common';
-import { WebSocket, WebSocketServer, createWebSocketStream } from 'ws';
+import { WebSocket, WebSocketServer } from 'ws';
+import * as websocketStream from 'websocket-stream';
+
 // Import pty using require if import is not working
 const pty = require('node-pty');
 
-let proc = null;
-let duplex = null;
-
-const code = `import datetime; print(datetime.date.today())`;
+const code = "import datetime; print(datetime.date.today())"
 
 @Injectable()
 export class WebSocketService implements OnModuleInit, OnModuleDestroy {
@@ -18,12 +17,11 @@ export class WebSocketService implements OnModuleInit, OnModuleDestroy {
         this.wss.on('connection', (ws) => {
             console.log('New connection established');
 
-            duplex = createWebSocketStream(ws, { encoding: 'utf8' });
+            const duplex = websocketStream(ws, { encoding: 'utf8' });
 
-            // Ensure that pty.spawn is available and correctly used
             const create_volume = pty.spawn('docker', ['volume', 'create', '--name', 'volume_1']);
 
-            proc = pty.spawn('docker', ['run', "--rm", "-ti", "-v", "volume_1:/app", "python:3.9-slim", "bash"])
+            const proc = pty.spawn('docker', ['run', "--rm", "-ti", "-v", "volume_1:/app", "python:3.9-slim", "bash"])
 
 
 //             proc.write(`bash -c
@@ -41,13 +39,22 @@ export class WebSocketService implements OnModuleInit, OnModuleDestroy {
             });
 
             duplex.on('data', (data) => proc.write(data.toString()));
-            
-            if (ws.readyState == WebSocket.OPEN) {
-                console.log("WS IS OPEN");
-                proc.write(`
-                    echo "${code}" > /app/code.py
-                `); 
-            }
+            // console.log(duplex);
+
+            console.log("WS IS OPEN");
+
+
+            // needs Timeout
+            proc.write(`echo \"${code}\" > /app/code.py\r`);
+
+
+            duplex.on('error', (err) => {
+                console.log("Error: ", err);
+            })
+
+            proc.on('error', (err) => {
+                console.log("Error Process: ", err);
+            })
 
             ws.on('close', function () {
                 console.log('Stream closed');
@@ -67,6 +74,6 @@ export class WebSocketService implements OnModuleInit, OnModuleDestroy {
     }
 
     async executeCode(code : string) {
-        proc.write('python /app/code.py');
+        // proc.write('python /app/code.py');
     }
 }

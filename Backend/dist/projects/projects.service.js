@@ -17,11 +17,6 @@ let ProjectsService = class ProjectsService {
         this.databaseService = databaseService;
     }
     async create(createProjectDto, id) {
-        const user = this.databaseService.user.findUnique({
-            where: {
-                id,
-            }
-        });
         return this.databaseService.project.create({
             data: {
                 name: createProjectDto.name,

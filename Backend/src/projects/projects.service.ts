@@ -8,11 +8,11 @@ export class ProjectsService {
   constructor(private readonly databaseService : DatabaseService) {}
 
   async create(createProjectDto: Prisma.ProjectCreateInput, id : number) {
-    const user = this.databaseService.user.findUnique({
-      where: {
-        id,
-      }
-    });
+    // const user = this.databaseService.user.findUnique({
+    //   where: {
+    //     id,
+    //   }
+    // });
     return this.databaseService.project.create({
       data: {
         name: createProjectDto.name,

@@ -1,4 +1,7 @@
-import { Box, Heading, Text, Grid, GridItem, Button, VStack, HStack, Center, Image } from '@chakra-ui/react';
+import { Box, Heading, Text, Grid, GridItem, Button, VStack, HStack, Center, Image,
+  FormControl, FormLabel, Input, Select, RadioGroup, Radio, useDisclosure, Modal, 
+  ModalOverlay, ModalContent, ModalHeader, ModalFooter, ModalBody, ModalCloseButton,
+ } from '@chakra-ui/react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { useEffect, useState } from 'react';
@@ -8,6 +11,12 @@ function LandingPage() {
   const navigate = useNavigate();
   const { user, logout } = useAuth(); // Add user and logout from useAuth
   const [projects, setProjects] = useState([]);
+  const { isOpen, onOpen, onClose } = useDisclosure();
+
+  // Form state for new project
+  const [projectName, setProjectName] = useState('');
+  const [projectLanguage, setProjectLanguage] = useState('Java');
+  const [projectPrivacy, setProjectPrivacy] = useState('Public');
 
   const getUserProjects = async () => {
     if (user) {
@@ -25,11 +34,20 @@ function LandingPage() {
     }
   };
 
-  const createProject = async (name, language, isPublic) => {
+  const createProject = async () => {
     try {
-      await axios.post(`http://localhost:3001/projects/${user.id}`, {
+      let privacy = false;
+      if (projectPrivacy == 1) {
+        privacy = true;
+      }
+      const response = await axios.post(`http://localhost:3001/projects/${user.id}`, {
+        name: projectName, 
+        language: projectLanguage, 
+        isPublic: privacy, 
+        volumePath: "volume_1"}, {
         withCredentials: true,
       });
+      console.log(response);
       console.log("USER CREATED SUCCESSFULLY");
     }
     catch (err) {
@@ -104,11 +122,67 @@ function LandingPage() {
               ))}
             </VStack>
           </Center>
+          <Center>
+                {/* Create Project Button */}
+                <Button colorScheme="blue" mt={8} onClick={onOpen}>
+                  Create Project
+                </Button>
+          </Center>
         </Box>
       )}
 
-      {/* Create Project Section */}
 
+      {/* Modal for Creating a Project */}
+      <Modal isOpen={isOpen} onClose={onClose}>
+        <ModalOverlay />
+        <ModalContent>
+          <ModalHeader>Create a New Project</ModalHeader>
+          <ModalCloseButton />
+          <ModalBody>
+            <VStack spacing={4}>
+              <FormControl id="project-name" isRequired>
+                <FormLabel>Project Name</FormLabel>
+                <Input
+                  placeholder="Enter project name"
+                  value={projectName}
+                  onChange={(e) => setProjectName(e.target.value)}
+                />
+              </FormControl>
+
+              <FormControl id="project-language" isRequired>
+                <FormLabel>Project Language</FormLabel>
+                <Select
+                  placeholder="Select project language"
+                  value={projectLanguage}
+                  onChange={(e) => setProjectLanguage(e.target.value)}
+                >
+                  <option value="Java">Java</option>
+                  <option value="Python">Python</option>
+                </Select>
+              </FormControl>
+
+              <FormControl id="project-privacy" isRequired>
+                <FormLabel>Project Privacy</FormLabel>
+                <RadioGroup value={projectPrivacy} onChange={setProjectPrivacy}>
+                  <HStack spacing={4}>
+                    <Radio value="1">Public</Radio>
+                    <Radio value="0">Private</Radio>
+                  </HStack>
+                </RadioGroup>
+              </FormControl>
+            </VStack>
+          </ModalBody>
+
+          <ModalFooter>
+            <Button colorScheme="blue" mr={3} onClick={createProject}>
+              Create Project
+            </Button>
+            <Button variant="ghost" onClick={onClose}>
+              Cancel
+            </Button>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
 
       {/* Features Section */}
       <Box as="section" py={20}>

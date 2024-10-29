@@ -36,6 +36,7 @@ model Project {
   lastAccessed DateTime
   isPublic     Boolean  @default(false)
   volumePath   String
+  volumeName   String   @default(uuid())
 
   UserProject UserProject[]
 }

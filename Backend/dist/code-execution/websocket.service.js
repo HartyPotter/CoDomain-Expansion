@@ -63,8 +63,6 @@ let WebSocketService = class WebSocketService {
             this.wss.close();
         }
     }
-    async executeCode(code) {
-    }
 };
 exports.WebSocketService = WebSocketService;
 exports.WebSocketService = WebSocketService = __decorate([

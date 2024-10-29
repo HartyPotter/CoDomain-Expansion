@@ -1,10 +1,16 @@
 import { useState, useEffect, useRef } from 'react';
 import { Terminal } from '@xterm/xterm';
 import { FitAddon } from 'xterm-addon-fit';
+import { useLocation } from 'react-router-dom'; // Import useLocation
 import 'xterm/css/xterm.css';
 
 const TerminalComponent = () => {
     const [terminal, setTerminal] = useState(null);
+
+    const { state } = useLocation(); // Get the state from the location
+    const websocketUrl = state?.websocketUrl; // Access websocketUrl from state
+
+
     const terminalRef = useRef(null);
     const socketRef = useRef(null);
     const fitAddonRef = useRef(null);
@@ -27,37 +33,41 @@ const TerminalComponent = () => {
 
         term.writeln('Connecting to Docker container...');
 
-        socketRef.current = new WebSocket('ws://localhost:4000');
+        if (websocketUrl) {
+            // socketRef.current = new WebSocket('ws://localhost:4000');
+            socketRef.current = new WebSocket(websocketUrl);
 
-        socketRef.current.onopen = () => {
-            term.writeln('Connected to Docker container');
-            term.write('\r\n$ ');
-        };
+            socketRef.current.onopen = () => {
+                term.writeln('Connected to Docker container');
+                term.write('\r\n$ ');
+            };
 
-        socketRef.current.onmessage = async ({ data }) => {
-            if (data instanceof Blob) {
-                console.log("TRUEEEEEEEEEEE\n");
-                const text = await data.text(); // Convert Blob to text
-                term.write(text);
-            } 
-            else {
-                term.write(data); // If it's already a string
-            }
-        };
+            socketRef.current.onmessage = async ({ data }) => {
+                if (data instanceof Blob) {
+                    console.log("TRUEEEEEEEEEEE\n");
+                    const text = await data.text(); // Convert Blob to text
+                    term.write(text);
+                } 
+                else {
+                    term.write(data); // If it's already a string
+                }
+            };
 
-        socketRef.current.onclose = () => {
-            term.writeln('Disconnected from Docker container');
-        };
+            socketRef.current.onclose = () => {
+                term.writeln('Disconnected from Docker container');
+            };
 
-        window.addEventListener('resize', () => fitAddonRef.current.fit());
+            window.addEventListener('resize', () => fitAddonRef.current.fit());
 
-        return () => {
-            term.dispose();
-            if (socketRef.current)
-                socketRef.current.close();
-            window.removeEventListener('resize', () => fitAddonRef.current.fit());
-        };
-    }, []);
+            return () => {
+                term.dispose();
+                if (socketRef.current)
+                    socketRef.current.close();
+                window.removeEventListener('resize', () => fitAddonRef.current.fit());
+            };
+        }
+
+    }, [websocketUrl]);
 
     useEffect(() => {
         if (terminal && socketRef.current) {

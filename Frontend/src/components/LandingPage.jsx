@@ -40,20 +40,39 @@ function LandingPage() {
       if (projectPrivacy == 1) {
         privacy = true;
       }
+      
       const response = await axios.post(`http://localhost:3001/projects/${user.id}`, {
         name: projectName, 
         language: projectLanguage, 
-        isPublic: privacy, 
-        volumePath: "volume_1"}, {
-        withCredentials: true,
-      });
-      console.log(response);
-      console.log("USER CREATED SUCCESSFULLY");
+        isPublic: privacy
+      }, 
+        {
+          withCredentials: true,
+        }
+      );
+      await axios.post('http://localhost:3001/execute/volume', {
+        volumeName: response.data.volumeName
+      },
+      { withCredentials: true });
+      
+      openProject(response.data.volumeName, response.data.language);
     }
     catch (err) {
       console.log(err);
     }
   };
+
+  const openProject = async (volume, image) => {
+      const response = await axios.post(`http://localhost:3001/execute/open`, 
+      {
+        volume: volume,
+        image: image
+      },
+      { withCredentials: true })
+
+      const websocketUrl = response.data.websocketUrl;
+      navigate('/code-editor', { state: { websocketUrl } });
+  }
 
   useEffect(() => {
     getUserProjects();
@@ -115,22 +134,27 @@ function LandingPage() {
                 <Box key={Wrapper.project.id} borderWidth="1px" borderRadius="lg" p={4} w="100%">
                   <Heading size="md">{Wrapper.project.name}</Heading>
                   <Text fontSize="sm" color="gray.500">{Wrapper.project.language}</Text>
-                  <Button mt={2} colorScheme="blue">
+                  <Button mt={2} colorScheme="blue" onClick={() => openProject(Wrapper.project.volumeName, Wrapper.project.language)}>
                     Open Project
                   </Button>
                 </Box>
               ))}
             </VStack>
           </Center>
-          <Center>
-                {/* Create Project Button */}
-                <Button colorScheme="blue" mt={8} onClick={onOpen}>
-                  Create Project
-                </Button>
-          </Center>
         </Box>
       )}
 
+      {user && (
+        <Box>
+        <Center>
+          {/* Create Project Button */}
+          <Button colorScheme="blue" mt={8} onClick={onOpen}>
+            Create Project
+          </Button>
+        </Center>
+      </Box>
+      )}
+      
 
       {/* Modal for Creating a Project */}
       <Modal isOpen={isOpen} onClose={onClose}>

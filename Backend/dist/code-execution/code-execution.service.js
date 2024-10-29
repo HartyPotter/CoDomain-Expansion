@@ -8,89 +8,67 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.CodeExecutionService = void 0;
 const common_1 = require("@nestjs/common");
-const child_process_1 = require("child_process");
 const ws_1 = require("ws");
-const Docker = require('dockerode');
-const docker = new Docker();
-const { PassThrough } = require('stream');
-const util = require('util');
-const wss = new ws_1.WebSocketServer({ port: 3000 });
-async function getStreamData(stream) {
-    const passThrough = new PassThrough();
-    stream.pipe(passThrough);
-    const chunks = [];
-    for await (const chunk of passThrough) {
-        chunks.push(chunk);
-    }
-    return Buffer.concat(chunks).toString();
-}
-let container = null;
-let volume = null;
-let logs = null;
-let exec = null;
-let stream = null;
+const websocketStream = require("websocket-stream");
+const pty = require('node-pty');
+const code = "import datetime; print(datetime.date.today())";
+let isOutputEnabled = true;
 let CodeExecutionService = class CodeExecutionService {
-    async startContainer() {
-        volume = await docker.createVolume({
-            Name: `volume_1`,
-            Driver: 'local',
-        });
-        container = await docker.createContainer({
-            Image: "python:3.9-slim",
-            Tty: true,
-            HostConfig: {
-                Binds: [`${volume.Name}:/app`],
-            },
-        });
-        await container.start();
-        const exec = await container.exec({
-            Cmd: ['bin/bash'],
-            AttachStdin: true,
-            AttachStdout: true,
-            AttachStderr: true,
-            Tty: true,
+    async createVolume(volumeName) {
+        try {
+            pty.spawn('docker', ['volume', 'create', '--name', volumeName]);
+        }
+        catch {
+            console.log("Couldn't create volume");
+        }
+    }
+    async openProject(volume, image) {
+        this.wss = new ws_1.WebSocketServer({ port: 4000 });
+        this.wss.on('connection', (ws) => {
+            console.log('New connection established');
+            console.log('My volume name is:', volume);
+            const duplex = websocketStream(ws, { encoding: 'utf8' });
+            const proc = pty.spawn('docker', ['run', "--rm", "-ti", "-v", `${volume}:/app`, "python:3.9-slim", "bash"]);
+            const executeSilentCommand = (command) => {
+                isOutputEnabled = false;
+                proc.write(command);
+                setTimeout(() => {
+                    isOutputEnabled = true;
+                }, 1000);
+            };
+            const onData = proc.onData((data) => {
+                console.log("Process Received Data: ", data);
+                if (isOutputEnabled) {
+                    duplex.write(data);
+                }
+            });
+            const exit = proc.onExit(() => {
+                console.log("Process exited");
+                onData.dispose();
+                exit.dispose();
+            });
+            duplex.on('data', (data) => proc.write(data.toString()));
+            console.log("WS IS OPEN");
+            setTimeout(() => {
+                executeSilentCommand(`echo \"${code}\" >> /app/code.py \r`);
+            }, 2000);
+            duplex.on('error', (err) => {
+                console.log("Error: ", err);
+            });
+            proc.on('error', (err) => {
+                console.log("Error Process: ", err);
+            });
+            ws.on('close', function () {
+                console.log('Stream closed');
+                proc.kill();
+                duplex.destroy();
+            });
         });
     }
-    async executeCode(code, language, version) {
-        if (!container)
-            await this.startContainer();
-        const exec = await container.exec({
-            Cmd: ['bash', '-c', `
-    cat <<EOF > /app/code.py
-${code}
-EOF
-    python /app/code.py`],
-            AttachStdin: true,
-            AttachStdout: true,
-            AttachStderr: true,
-            Tty: true,
-        });
-        const stream = await exec.start();
-        const output = await getStreamData(stream);
-        console.log(output.toString());
-        return { output: output.toString() };
-    }
-    async executeTerminal(command) {
-        wss.on('connection', (ws) => {
-            const docker_process = (0, child_process_1.spawn)('docker', ['run', '-i', 'python:3.9-slim', 'bash']);
-            docker_process.stdout.on('data', (data) => {
-                ws.send(data.toString());
-            });
-            docker_process.stderr.on('data', (data) => {
-                ws.send(data.toString());
-            });
-            ws.on('message', (message) => {
-                docker_process.stdin.write(message.toString());
-            });
-            docker_process.on('close', (code) => {
-                console.log(`Docker process exited with code ${code}`);
-                ws.close();
-            });
-            ws.on('close', () => {
-                console.log('WebSocket closed');
-                docker_process.kill();
-            });
-        });
+    closeProject(projectId, wss, proc) {
+        console.log(`Closing project ${projectId}`);
+        proc.kill();
+        wss.close();
     }
 };
 exports.CodeExecutionService = CodeExecutionService;

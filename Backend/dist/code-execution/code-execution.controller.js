@@ -19,33 +19,32 @@ let CodeExecutionController = class CodeExecutionController {
     constructor(codeExecutionService) {
         this.codeExecutionService = codeExecutionService;
     }
-    async executeCode(code, lang, version) {
-        return await this.codeExecutionService.executeCode(code, lang, version);
+    async createVolume(volumeName) {
+        console.log("Will create Volume with name:", volumeName);
+        await this.codeExecutionService.createVolume(volumeName);
     }
-    async executeTerminal(command) {
-        console.log("SSSS: ", command);
-        const result = await this.codeExecutionService.executeTerminal(command);
-        console.log("RESULT FROM endpoint: ", result);
-        return result;
+    async openProject(volume, image) {
+        console.log("Received an Open Request");
+        await this.codeExecutionService.openProject(volume, image);
+        return { websocketUrl: 'ws://localhost:4000' };
     }
 };
 exports.CodeExecutionController = CodeExecutionController;
 __decorate([
-    (0, common_1.Post)(),
-    __param(0, (0, common_1.Body)('sourceCode')),
-    __param(1, (0, common_1.Body)('language')),
-    __param(2, (0, common_1.Body)('version')),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String, String, String]),
-    __metadata("design:returntype", Promise)
-], CodeExecutionController.prototype, "executeCode", null);
-__decorate([
-    (0, common_1.Post)('terminal'),
-    __param(0, (0, common_1.Body)('command')),
+    (0, common_1.Post)('volume'),
+    __param(0, (0, common_1.Body)('volumeName')),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String]),
     __metadata("design:returntype", Promise)
-], CodeExecutionController.prototype, "executeTerminal", null);
+], CodeExecutionController.prototype, "createVolume", null);
+__decorate([
+    (0, common_1.Post)('open'),
+    __param(0, (0, common_1.Body)('volume')),
+    __param(1, (0, common_1.Body)('image')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, String]),
+    __metadata("design:returntype", Promise)
+], CodeExecutionController.prototype, "openProject", null);
 exports.CodeExecutionController = CodeExecutionController = __decorate([
     (0, common_1.Controller)('execute'),
     __metadata("design:paramtypes", [code_execution_service_1.CodeExecutionService])

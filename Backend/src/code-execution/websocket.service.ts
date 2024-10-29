@@ -88,8 +88,5 @@ export class WebSocketService implements OnModuleInit, OnModuleDestroy {
             this.wss.close();
         }
     }
-
-    async executeCode(code : string) {
-        // proc.write('python /app/code.py');
-    }
+    
 }

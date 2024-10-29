@@ -12,6 +12,6 @@ import {WebSocketService} from "./code-execution/websocket.service";
 @Module({
     imports: [AuthModule, DatabaseModule, UsersModule, CodeExecutionModule, ProjectsModule],
     controllers: [CodeExecutionController],
-    providers: [CodeExecutionService, RedisService, WebSocketService],
+    providers: [CodeExecutionService, RedisService],
 })
 export class AppModule {}

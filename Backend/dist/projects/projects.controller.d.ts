@@ -11,6 +11,7 @@ export declare class ProjectsController {
         lastAccessed: Date;
         isPublic: boolean;
         volumePath: string;
+        volumeName: string;
     }>;
     findOne(id: string): Promise<{
         id: number;
@@ -20,6 +21,7 @@ export declare class ProjectsController {
         lastAccessed: Date;
         isPublic: boolean;
         volumePath: string;
+        volumeName: string;
     }>;
     findCollaborators(id: string): Promise<string[]>;
     update(id: string, updateProjectDto: Prisma.ProjectUpdateInput): Promise<{
@@ -30,6 +32,7 @@ export declare class ProjectsController {
         lastAccessed: Date;
         isPublic: boolean;
         volumePath: string;
+        volumeName: string;
     }>;
     remove(id: string): Promise<{
         id: number;
@@ -39,5 +42,6 @@ export declare class ProjectsController {
         lastAccessed: Date;
         isPublic: boolean;
         volumePath: string;
+        volumeName: string;
     }>;
 }

@@ -1,7 +1,7 @@
+import { WebSocketServer } from 'ws';
 export declare class CodeExecutionService {
-    startContainer(): Promise<void>;
-    executeCode(code: string, language: string, version: string): Promise<{
-        output: string;
-    }>;
-    executeTerminal(command: string): Promise<any>;
+    private wss;
+    createVolume(volumeName: string): Promise<void>;
+    openProject(volume: string, image: string): Promise<any>;
+    closeProject(projectId: string, wss: WebSocketServer, proc: any): void;
 }

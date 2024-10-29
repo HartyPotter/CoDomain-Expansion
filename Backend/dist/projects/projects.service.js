@@ -22,7 +22,7 @@ let ProjectsService = class ProjectsService {
                 name: createProjectDto.name,
                 language: createProjectDto.language,
                 isPublic: createProjectDto.isPublic,
-                volumePath: createProjectDto.volumePath,
+                volumePath: '',
                 lastAccessed: new Date(),
                 UserProject: {
                     create: {

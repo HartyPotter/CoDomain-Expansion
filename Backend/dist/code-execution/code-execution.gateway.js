@@ -48,8 +48,9 @@ let CodeExecutionGateway = class CodeExecutionGateway {
             executeSilentCommand(`echo \"${code}\" >> /app/code.py \r`);
         }, 2000);
         const onData = proc.onData((output) => {
-            console.log("Process Received Data: ", output);
-            client.emit('output', output);
+            if (isOutputEnabled) {
+                client.emit('output', output);
+            }
         });
         client.on('input', (inputData) => {
             proc.write(inputData);

@@ -9,12 +9,16 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.CodeExecutionModule = void 0;
 const common_1 = require("@nestjs/common");
 const code_execution_gateway_1 = require("./code-execution.gateway");
+const code_execution_service_1 = require("./code-execution.service");
+const code_execution_controller_1 = require("./code-execution.controller");
 let CodeExecutionModule = class CodeExecutionModule {
 };
 exports.CodeExecutionModule = CodeExecutionModule;
 exports.CodeExecutionModule = CodeExecutionModule = __decorate([
     (0, common_1.Module)({
-        providers: [code_execution_gateway_1.CodeExecutionGateway],
+        controllers: [code_execution_controller_1.CodeExecutionController],
+        providers: [code_execution_service_1.CodeExecutionService, code_execution_gateway_1.CodeExecutionGateway],
+        exports: [CodeExecutionModule]
     })
 ], CodeExecutionModule);
 //# sourceMappingURL=code-execution.module.js.map

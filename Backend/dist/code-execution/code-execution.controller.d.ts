@@ -1,3 +1,6 @@
+import { CodeExecutionService } from './code-execution.service';
 export declare class CodeExecutionController {
-    constructor();
+    private readonly codeExecutionService;
+    constructor(codeExecutionService: CodeExecutionService);
+    createVolume(volumeName: string): Promise<void>;
 }

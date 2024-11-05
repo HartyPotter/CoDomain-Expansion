@@ -53,8 +53,10 @@ export class CodeExecutionGateway implements OnGatewayConnection, OnGatewayDisco
 
     // Emit output to the client
     const onData = proc.onData((output) => {
-        console.log("Process Received Data: ", output);
-        client.emit('output', output);
+        // console.log("Process Received Data: ", output);
+        if (isOutputEnabled) {
+          client.emit('output', output);
+        }
     });
 
     // Receive input from the client

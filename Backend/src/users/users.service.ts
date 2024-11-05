@@ -63,6 +63,7 @@ export class UsersService {
             id: true,
             name: true,
             language: true,
+            volumeName: true,
           }
         }
       }

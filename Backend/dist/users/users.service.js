@@ -63,6 +63,7 @@ let UsersService = class UsersService {
                         id: true,
                         name: true,
                         language: true,
+                        volumeName: true,
                     }
                 }
             }

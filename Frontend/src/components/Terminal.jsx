@@ -21,10 +21,28 @@ const TerminalComponent = () => {
             useStyle: true,
             screenKeys: true,
             cursorBlink: true,
-            //You have to set the same number in your server
             cols: 100,
             theme: {
-                background: "#333"
+                foreground: "#00FF00",      // Bright green text for a "hacker" look
+                background: "rgba(20, 20, 20, 0.9)",  // Dark, slightly translucent background
+                cursor: "#FF5722",          // Bright orange cursor
+                selection: "#666666",       // Grey for selected text
+                black: "#000000",           // Standard color palette
+                red: "#FF5555",
+                green: "#50FA7B",
+                yellow: "#F1FA8C",
+                blue: "#BD93F9",
+                magenta: "#FF79C6",
+                cyan: "#8BE9FD",
+                white: "#F8F8F2",
+                brightBlack: "#4D4D4D",
+                brightRed: "#FF6E6E",
+                brightGreen: "#69FF94",
+                brightYellow: "#FFFFA5",
+                brightBlue: "#D6ACFF",
+                brightMagenta: "#FF92DF",
+                brightCyan: "#A4FFFF",
+                brightWhite: "#FFFFFF"
             }
         });
 

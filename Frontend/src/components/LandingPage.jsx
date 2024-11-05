@@ -134,6 +134,7 @@ function LandingPage() {
                 <Box key={Wrapper.project.id} borderWidth="1px" borderRadius="lg" p={4} w="100%">
                   <Heading size="md">{Wrapper.project.name}</Heading>
                   <Text fontSize="sm" color="gray.500">{Wrapper.project.language}</Text>
+                  {/*<Text fontSize="sm" color="gray.500">{Wrapper.project.volumeName}</Text>*/}
                   <Button mt={2} colorScheme="blue" onClick={() => openProject(Wrapper.project.volumeName, Wrapper.project.language)}>
                     Open Project
                   </Button>

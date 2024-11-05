@@ -63,6 +63,7 @@ export declare class UsersService {
             id: number;
             name: string;
             language: string;
+            volumeName: string;
         };
     }[]>;
     update(id: number, updateUserDto: Prisma.UserUpdateInput): Promise<{

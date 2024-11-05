@@ -15,6 +15,7 @@ const CodeEditor = () => {
     const editorRef = useRef()
     const [value, setValue] = useState("")
     const [language, setLanguage] = useState('javascript')
+    const { volume, image } = location.state || {};
 
     const onMount = (editor) => {
         editorRef.current = editor;
@@ -62,7 +63,7 @@ const CodeEditor = () => {
                         onChange={(value) => setValue(value)} />
                     </Box>
                     <Box w="50%">
-                        <TerminalComponent />
+                        <TerminalComponent volume={volume} image={image}/>
                     </Box>
                 </HStack>
             </Box>

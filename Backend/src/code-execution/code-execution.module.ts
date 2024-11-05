@@ -1,10 +1,7 @@
 import { Module } from '@nestjs/common';
-import { CodeExecutionController } from './code-execution.controller';
-import { CodeExecutionService } from './code-execution.service';
+import { CodeExecutionGateway } from './code-execution.gateway';
 
 @Module({
-    controllers: [CodeExecutionController],
-    providers: [CodeExecutionService],
-    exports: [CodeExecutionModule]
+  providers: [CodeExecutionGateway],
 })
 export class CodeExecutionModule {}

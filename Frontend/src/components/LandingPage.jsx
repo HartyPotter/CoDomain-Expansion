@@ -63,15 +63,15 @@ function LandingPage() {
   };
 
   const openProject = async (volume, image) => {
-      const response = await axios.post(`http://localhost:3001/execute/open`, 
-      {
-        volume: volume,
-        image: image
-      },
-      { withCredentials: true })
+      // const response = await axios.post(`http://localhost:3001/execute/open`, 
+      // {
+      //   volume: volume,
+      //   image: image
+      // },
+      // { withCredentials: true });
 
-      const websocketUrl = response.data.websocketUrl;
-      navigate('/code-editor', { state: { websocketUrl } });
+      // const websocketUrl = response.data.websocketUrl;
+      navigate('/code-editor', { state: { volume, image } });
   }
 
   useEffect(() => {

@@ -12,12 +12,4 @@ export class CodeExecutionController {
       await this.codeExecutionService.createVolume(volumeName);
   }
   
-//   @Post('open')
-//   async openProject( @Body('volume') volume: string,
-//                      @Body('image') image: string ): 
-//                     Promise<{ websocketUrl: string }> {
-//       console.log("Received an Open Request");
-//       await this.codeExecutionService.openProject(volume, image);
-//       return { websocketUrl : 'ws://localhost:4000'};
-//   }
 }

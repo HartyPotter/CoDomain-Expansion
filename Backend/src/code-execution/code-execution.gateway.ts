@@ -2,9 +2,7 @@ import { WebSocketGateway, WebSocketServer, OnGatewayConnection, OnGatewayDiscon
 import { Injectable } from '@nestjs/common';
 import { Server, Socket } from 'socket.io';
 import * as pty from 'node-pty';
-// import DiffMatchPatch from 'diff-match-patch';
 import { open } from 'node:fs/promises';
-// import { DiffMatchPatch } from 'diff-match-patch';
 const DiffMatchPatch = require('diff-match-patch');
 
 const code = '\ndef greet(name):\n print("Hello, " + name + "!")\n\ngreet("Alex")\n';

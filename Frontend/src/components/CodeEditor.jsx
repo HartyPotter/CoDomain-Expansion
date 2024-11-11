@@ -63,7 +63,7 @@ const CodeEditor = () => {
                         onChange={(value) => setValue(value)} />
                     </Box>
                     <Box w="50%">
-                        <TerminalComponent volume={volume} image={image}/>
+                        <TerminalComponent volume={volume} image={image} code={value}/>
                     </Box>
                 </HStack>
             </Box>

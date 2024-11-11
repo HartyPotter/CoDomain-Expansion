@@ -17,7 +17,9 @@ const websockets_1 = require("@nestjs/websockets");
 const common_1 = require("@nestjs/common");
 const socket_io_1 = require("socket.io");
 const pty = require("node-pty");
-const code = "import datetime; print(datetime.date.today())";
+const promises_1 = require("node:fs/promises");
+const DiffMatchPatch = require('diff-match-patch');
+const code = '\ndef greet(name):\n print("Hello, " + name + "!")\n\ngreet("Alex")\n';
 let isOutputEnabled = true;
 let CodeExecutionGateway = class CodeExecutionGateway {
     constructor() {
@@ -45,7 +47,7 @@ let CodeExecutionGateway = class CodeExecutionGateway {
             }, 1000);
         };
         setTimeout(() => {
-            executeSilentCommand(`echo \"${code}\" >> /app/code.py \r`);
+            executeSilentCommand(`echo -e '${code}' >> /app/code.py \r`);
         }, 2000);
         const onData = proc.onData((output) => {
             if (isOutputEnabled) {
@@ -54,6 +56,24 @@ let CodeExecutionGateway = class CodeExecutionGateway {
         });
         client.on('input', (inputData) => {
             proc.write(inputData);
+        });
+        client.on('saveFileData', async (newData) => {
+            const fileHandle = await (0, promises_1.open)(`/var/lib/docker/volumes/${volume}/_data/code.py`, 'r+');
+            const fileData = await fileHandle.readFile({ encoding: 'utf-8' });
+            const dmp = new DiffMatchPatch();
+            const diff = dmp.patch_make(fileData, newData);
+            const [newText, [success]] = dmp.patch_apply(diff, fileData);
+            if (success) {
+                await fileHandle.truncate(0);
+                await fileHandle.write(newText, 0, 'utf-8');
+                console.log("File updated successfully.");
+            }
+            else {
+                console.error("Failed to apply patch.");
+            }
+            console.log("Code.py Data:", fileData);
+            console.log(newData);
+            await fileHandle.close();
         });
         const exit = proc.onExit(() => {
             console.log("Process exited");

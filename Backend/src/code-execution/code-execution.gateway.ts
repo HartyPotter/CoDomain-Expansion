@@ -2,8 +2,12 @@ import { WebSocketGateway, WebSocketServer, OnGatewayConnection, OnGatewayDiscon
 import { Injectable } from '@nestjs/common';
 import { Server, Socket } from 'socket.io';
 import * as pty from 'node-pty';
+// import DiffMatchPatch from 'diff-match-patch';
+import { open } from 'node:fs/promises';
+// import { DiffMatchPatch } from 'diff-match-patch';
+const DiffMatchPatch = require('diff-match-patch');
 
-const code = "import datetime; print(datetime.date.today())"
+const code = '\ndef greet(name):\n print("Hello, " + name + "!")\n\ngreet("Alex")\n';
 let isOutputEnabled = true;
 
 
@@ -35,6 +39,8 @@ export class CodeExecutionGateway implements OnGatewayConnection, OnGatewayDisco
   ) {
     const { volume, image } = data;
 
+    // console.log("VOLUME NAEM: ", volume);
+
     // Spawn Docker container with the specified volume and image
     const proc = pty.spawn('docker', ['run', "--rm", "-ti", "-v", `${volume}:/app`, "python:3.9-slim", "bash"], {})
 
@@ -48,7 +54,7 @@ export class CodeExecutionGateway implements OnGatewayConnection, OnGatewayDisco
     }
 
     setTimeout(() => {
-        executeSilentCommand(`echo \"${code}\" >> /app/code.py \r`);
+        executeSilentCommand(`echo -e '${code}' >> /app/code.py \r`);
     }, 2000);
 
     // Emit output to the client
@@ -61,7 +67,45 @@ export class CodeExecutionGateway implements OnGatewayConnection, OnGatewayDisco
 
     // Receive input from the client
     client.on('input', (inputData) => {
-      proc.write(inputData);
+        proc.write(inputData);
+    });
+
+    client.on('saveFileData', async (newData) => {
+
+        /*
+          This requires read and write permissions on the docker volume (/var/lib/docker/volumes/{volumeName})
+          Needs to be changed
+        */
+
+        // open in read-write mode
+        const fileHandle = await open(`/var/lib/docker/volumes/${volume}/_data/code.py`, 'r+');
+        const fileData = await fileHandle.readFile({encoding: 'utf-8'});
+
+        const dmp = new DiffMatchPatch();
+
+        // Compute file differences
+        const diff = dmp.patch_make(fileData, newData);
+        // console.log(diff);
+
+        // Compute new text after applying patches
+        const [newText, [ success ]] = dmp.patch_apply(diff, fileData);
+
+        if (success) {
+          // write data to file
+          await fileHandle.truncate(0); // Clear existing content
+          await fileHandle.write(newText, 0, 'utf-8'); // Write the updated content
+          console.log("File updated successfully.");
+        }
+        else {
+          console.error("Failed to apply patch.");
+        }
+
+        // console.log("Code.py Data:", fileData);
+        // console.log(newData);
+
+        // Close Stream
+        await fileHandle.close();
+        // console.log("Edited Data:", newData);
     });
 
     const exit = proc.onExit(() => {

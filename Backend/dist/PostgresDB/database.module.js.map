@@ -1,1 +1,0 @@
-{"version":3,"file":"database.module.js","sourceRoot":"","sources":["../../src/PostgresDB/database.module.ts"],"names":[],"mappings":";;;;;;;;;AAAA,2CAAwC;AACxC,yDAAqD;AACrD,0DAAuD;AAMhD,IAAM,cAAc,GAApB,MAAM,cAAc;CAAG,CAAA;AAAjB,wCAAc;yBAAd,cAAc;IAJ1B,IAAA,eAAM,EAAC;QACN,SAAS,EAAE,CAAC,kCAAe,EAAE,4BAAY,CAAC;QAC1C,OAAO,EAAE,CAAC,kCAAe,EAAE,4BAAY,CAAC;KACzC,CAAC;GACW,cAAc,CAAG"}

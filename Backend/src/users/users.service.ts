@@ -23,7 +23,6 @@ export class UsersService {
     return this.databaseService.user.findMany();
   }
 
-
   async findByID(id: number) {
     return this.databaseService.user.findUnique({
       where: {
@@ -47,6 +46,33 @@ export class UsersService {
       }
     })
   }
+
+  async findUserProjects(id: number) {
+
+    // return the records from UserProject Table
+    // which have userId: id
+    // select the project of this record
+    // return the project's name and language
+    const projects = await this.databaseService.userProject.findMany({
+      where: {
+        userId: id,
+      },
+      select: {
+        project: {
+          select: {
+            id: true,
+            name: true,
+            language: true,
+            volumeName: true,
+          }
+        }
+      }
+    });
+    projects.map(project => project.project);
+    // console.log("FROM BACKEND: ", projects.map(project => project.project));
+    return projects;
+  }
+
 
   async update(id: number, updateUserDto: Prisma.UserUpdateInput) {
     return this.databaseService.user.update({

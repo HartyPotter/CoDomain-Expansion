@@ -6,6 +6,7 @@
 
 generator client {
   provider = "prisma-client-js"
+  previewFeatures = ["relationJoins"]
 }
 
 datasource db {
@@ -23,4 +24,33 @@ model User {
   password    String
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
+
+  UserProject UserProject[]
+}
+
+model Project {
+  id           Int      @id @default(autoincrement())
+  name         String
+  language     String
+  createdAt    DateTime @default(now())
+  lastAccessed DateTime
+  isPublic     Boolean  @default(false)
+  volumePath   String
+  volumeName   String   @default(uuid())
+
+  UserProject UserProject[]
+}
+
+// many-to-many relationship
+model UserProject {
+  id        Int      @id @default(autoincrement())
+  user      User     @relation(fields: [userId], references: [id])
+  project   Project  @relation(fields: [projectId], references: [id])
+  userId    Int
+  projectId Int
+  role      String? // TODO: Maybe make it as ENUM
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([userId, projectId]) // Ensures the same user-project pair is unique
 }

@@ -1,16 +1,18 @@
 import * as bcrypt from 'bcryptjs';
-import { Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { UsersService } from '../users/users.service';
 import { JwtService } from '@nestjs/jwt';
 import { RedisService } from 'src/redis/redis.service';
+import { RegisterUserDto } from './dto/register.dto';
+import { LoginUserDto } from './dto/login.dto';
 
 @Injectable()
 export class AuthService {
   constructor(private userService: UsersService,
               private jwtService: JwtService,
               private Redis: RedisService
-            ) {}
-  
+  ) {}
+
   // Helper Methods
   private async generateAcessToken(username: string, userID: string): Promise<string> {
     const payload = { sub: userID, username: username };
@@ -18,19 +20,20 @@ export class AuthService {
   }
 
   // Used to verify the user's credentials and sending the user back to the invoking function
-  async validateCredentials(username: string, input_password: string): Promise<any> {
-    const user = await this.userService.findByUsername(username);
+  async validateCredentials(loginUserDto): Promise<any> {
+    const user = await this.userService.findByUsername(loginUserDto.username);
 
     if (!user) {
       throw new NotFoundException('User with the provided username was not found');
-    } 
+    }
 
-    if (!await bcrypt.compare(input_password, user.password)) {
+    if (!await bcrypt.compare(loginUserDto.password, user.password)) {
       throw new UnauthorizedException('Invalid password. Please try again');
     }
-    
-    const { password, ...result } = user; // Filtering out the password
-    return result; 
+
+    const { password, createdAt, updatedAt, ...result } = user; // Filtering out the password
+
+    return result;
   }
 
   // private async generateRefreshToken(userID: string): Promise<string> {
@@ -52,79 +55,68 @@ export class AuthService {
   // }
 
 
-  // sign up
-  async signUp(first_name: string, last_name: string, age: number, username: string, email: string, password: string): Promise<any> {
+  // register
+  async register(registerUserDto: RegisterUserDto): Promise<any> {
 
     // Check for used usernames
-    if (await this.userService.findByUsername(username)) {
-      throw new Error('This username is already taken');
+    if (await this.userService.findByUsername(registerUserDto.username)) {
+      return null;
     }
 
     // Check for registered emails
-    if (await this.userService.findByEmail(email)) {
-      throw new Error('This email is already registered');
+    if (await this.userService.findByEmail(registerUserDto.email)) {
+      return null;
     }
 
-    const hashedPassword = await bcrypt.hash(password, 10);
-    const user = this.userService.create({
-      first_name,
-      last_name,
-      age,
-      username,
-      email,
-      password: hashedPassword
-    });
+    const password = await bcrypt.hash(registerUserDto.password, 10);
+    const user = this.userService.create({...registerUserDto, password});
 
     // Make sure the user is saved and returned with an id
     if (!user) {
       throw new Error('User creation failed');
     }
-    return await this.login(username, password);
+
+    return user;
   }
 
 
   // Log in
-  async login(username: string, password: string) {
+  async login(loginUserDto: LoginUserDto) {
 
-    // This step should be handled in the frontend
-    // if (!username || !password) {
-    //   throw new Error('Please complete all the required fields');
-    // }
+    const user = await this.validateCredentials(loginUserDto);
 
-    const user = await this.validateCredentials(username, password);
-    
     if (!user) {
-      throw new UnauthorizedException('Invalid login attempt. Try again.');
+      throw new HttpException("Invalid login attempt. Try again.", HttpStatus.INTERNAL_SERVER_ERROR);
     }
+
+    const accessToken = await this.generateAcessToken(loginUserDto.username, user.id.toString());
+    console.log("Access Token: ", accessToken);
 
     const redis = await this.Redis.getClient();
-    const accessToken = await this.generateAcessToken(username, user.id.toString());
-    // await redis.hSet(`token:${user.id}`, {accessToken, user: user.username, login_date: Date.now()});
-    
-    // await redis.set(`auth:${user.id}`, accessToken, 'EX', 3600); // Token expires in 1 hour
-    await redis.set(`token:${accessToken}`, user.id, {'EX': 60});
-    // await redis.hSet(`user:${user.id}`, { user }, {'EX', 3600});
-    // const {createdAt, updatedAt, ...result} = user;
-    // console.log(result);
-    const userFlattened = {
-      id: user.id,
-      first_name: user.first_name,
-      last_name: user.last_name,
-      age: user.age,
-      username: user.username,
-      email: user.email
-    }
-    await redis.hSet(`user:${user.id}`, userFlattened);
-    await redis.expire(`user:${user.id}`, 60);
+
+    // await redis.set(`token:${accessToken}`, user.id, {'EX': 7 * 24 * 60 * 60});
+
+    // Set the user in the Redis DB
+    await redis.hSet(`user:${accessToken}`, user);
+    await redis.expire(`user:${accessToken}`, 7 * 24 * 60 * 60);
 
     return {
+      user,
       accessToken
     }
   }
 
 
-  async logout(req: any) {
+  async logout(token: any) {
     const redis = await this.Redis.getClient();
-    await redis.del(`user:${req.user.id}`);
+    try {
+      await redis.del(`user:${token}`);
+    } catch (error) {
+      throw new HttpException(error, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
   }
+
+//   async check_user_status() {
+
+//   }
 }

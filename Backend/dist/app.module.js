@@ -13,14 +13,17 @@ const database_module_1 = require("./PostgresDB/database.module");
 const auth_module_1 = require("./auth/auth.module");
 const code_execution_module_1 = require("./code-execution/code-execution.module");
 const redis_service_1 = require("./redis/redis.service");
+const projects_module_1 = require("./projects/projects.module");
+const code_execution_controller_1 = require("./code-execution/code-execution.controller");
+const code_execution_service_1 = require("./code-execution/code-execution.service");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
 exports.AppModule = AppModule = __decorate([
     (0, common_1.Module)({
-        imports: [auth_module_1.AuthModule, database_module_1.DatabaseModule, users_module_1.UsersModule, code_execution_module_1.CodeExecutionModule],
-        controllers: [],
-        providers: [redis_service_1.RedisService],
+        imports: [auth_module_1.AuthModule, database_module_1.DatabaseModule, users_module_1.UsersModule, code_execution_module_1.CodeExecutionModule, projects_module_1.ProjectsModule],
+        controllers: [code_execution_controller_1.CodeExecutionController],
+        providers: [code_execution_service_1.CodeExecutionService, redis_service_1.RedisService],
     })
 ], AppModule);
 //# sourceMappingURL=app.module.js.map

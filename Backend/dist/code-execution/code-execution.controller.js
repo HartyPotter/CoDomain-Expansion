@@ -19,20 +19,19 @@ let CodeExecutionController = class CodeExecutionController {
     constructor(codeExecutionService) {
         this.codeExecutionService = codeExecutionService;
     }
-    async executeCode(code, lang, version) {
-        return await this.codeExecutionService.executeCode(code, lang, version);
+    async createVolume(volumeName) {
+        console.log("Will create Volume with name:", volumeName);
+        await this.codeExecutionService.createVolume(volumeName);
     }
 };
 exports.CodeExecutionController = CodeExecutionController;
 __decorate([
-    (0, common_1.Post)(),
-    __param(0, (0, common_1.Body)('sourceCode')),
-    __param(1, (0, common_1.Body)('language')),
-    __param(2, (0, common_1.Body)('version')),
+    (0, common_1.Post)('volume'),
+    __param(0, (0, common_1.Body)('volumeName')),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String, String, String]),
+    __metadata("design:paramtypes", [String]),
     __metadata("design:returntype", Promise)
-], CodeExecutionController.prototype, "executeCode", null);
+], CodeExecutionController.prototype, "createVolume", null);
 exports.CodeExecutionController = CodeExecutionController = __decorate([
     (0, common_1.Controller)('execute'),
     __metadata("design:paramtypes", [code_execution_service_1.CodeExecutionService])

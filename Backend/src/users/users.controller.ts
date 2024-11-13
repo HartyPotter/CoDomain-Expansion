@@ -23,6 +23,11 @@ export class UsersController {
     return this.usersService.findByID(+id);
   }
 
+  @Get(':id/projects')
+  findUserProjects(@Param('id') id: string) {
+    return this.usersService.findUserProjects(+id);
+  }
+
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateUserDto: Prisma.UserUpdateInput) {
     return this.usersService.update(+id, updateUserDto);

@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "A collaborative IDE with React frontend and Nest.js backend",
   "scripts": {
-    "server": "npm run start --prefix Backend",
+    "server": "npm run start:dev --prefix Backend",
     "client": "npm run dev --prefix Frontend",
     "start": "concurrently \"npm run server\" \"npm run client\"",
     "start:dev": "concurrently \"npm run server --watch\" \"npm run client --watch\"",
@@ -15,9 +15,15 @@
   "dependencies": {
     "@nestjs/jwt": "^10.2.0",
     "@nestjs/passport": "^10.0.3",
+    "@nestjs/platform-socket.io": "^10.4.6",
+    "@nestjs/websockets": "^10.4.6",
     "@prisma/client": "^5.18.0",
+    "@xterm/xterm": "^5.5.0",
     "bcryptjs": "^2.4.3",
+    "dockerode": "^4.0.2",
     "passport-jwt": "^4.0.1",
-    "react-router-dom": "^6.26.1"
+    "react-router-dom": "^6.26.1",
+    "websocket-stream": "^5.5.2",
+    "ws": "^8.18.0"
   }
 }

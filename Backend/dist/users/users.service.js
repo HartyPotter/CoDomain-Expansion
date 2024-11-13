@@ -52,6 +52,25 @@ let UsersService = class UsersService {
             }
         });
     }
+    async findUserProjects(id) {
+        const projects = await this.databaseService.userProject.findMany({
+            where: {
+                userId: id,
+            },
+            select: {
+                project: {
+                    select: {
+                        id: true,
+                        name: true,
+                        language: true,
+                        volumeName: true,
+                    }
+                }
+            }
+        });
+        projects.map(project => project.project);
+        return projects;
+    }
     async update(id, updateUserDto) {
         return this.databaseService.user.update({
             where: {

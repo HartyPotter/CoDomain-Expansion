@@ -1,27 +1,21 @@
 import { AuthService } from './auth.service';
 import { Response } from 'express';
-import { RedisUser } from './jwt.strategy';
-interface RequestWithUser extends Request {
-    user: RedisUser;
+import { RequestWithUser } from './jwt.strategy';
+import { RegisterUserDto } from './dto/register.dto';
+import { LoginUserDto } from './dto/login.dto';
+interface requestWithUser extends Request {
+    user: RequestWithUser;
 }
 export declare class AuthController {
     private authService;
     constructor(authService: AuthService);
-    register(body: {
-        first_name: string;
-        last_name: string;
-        age: number;
-        username: string;
-        email: string;
-        password: string;
-    }): Promise<any>;
-    login(body: {
-        username: string;
-        password: string;
-    }, res: Response): Promise<Response<any, Record<string, any>>>;
-    logout(req: Request): Promise<{
+    register(registerUserDto: RegisterUserDto): Promise<{
         message: string;
     }>;
-    getProfile(req: RequestWithUser): Promise<RedisUser>;
+    login(loginUserDto: LoginUserDto, res: Response): Promise<any>;
+    logout(req: Request, res: Response): Promise<{
+        message: string;
+    }>;
+    getProfile(req: requestWithUser): Promise<RequestWithUser>;
 }
 export {};

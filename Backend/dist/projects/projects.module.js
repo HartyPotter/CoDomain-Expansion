@@ -6,21 +6,19 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
     return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.TokenBlacklistService = void 0;
+exports.ProjectsModule = void 0;
 const common_1 = require("@nestjs/common");
-let TokenBlacklistService = class TokenBlacklistService {
-    constructor() {
-        this.blacklist = new Set();
-    }
-    addToBlacklist(token) {
-        this.blacklist.add(toen);
-    }
-    isBlacklisted(token) {
-        return this.blacklist.has(token);
-    }
+const projects_service_1 = require("./projects.service");
+const projects_controller_1 = require("./projects.controller");
+const database_module_1 = require("../PostgresDB/database.module");
+let ProjectsModule = class ProjectsModule {
 };
-exports.TokenBlacklistService = TokenBlacklistService;
-exports.TokenBlacklistService = TokenBlacklistService = __decorate([
-    (0, common_1.Injectable)()
-], TokenBlacklistService);
-//# sourceMappingURL=blacklist.js.map
+exports.ProjectsModule = ProjectsModule;
+exports.ProjectsModule = ProjectsModule = __decorate([
+    (0, common_1.Module)({
+        imports: [database_module_1.DatabaseModule],
+        controllers: [projects_controller_1.ProjectsController],
+        providers: [projects_service_1.ProjectsService],
+    })
+], ProjectsModule);
+//# sourceMappingURL=projects.module.js.map

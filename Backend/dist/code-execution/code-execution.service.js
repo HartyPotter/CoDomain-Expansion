@@ -8,47 +8,15 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.CodeExecutionService = void 0;
 const common_1 = require("@nestjs/common");
-const Docker = require('dockerode');
-const docker = new Docker();
-const { PassThrough } = require('stream');
-const util = require('util');
-async function getStreamData(stream) {
-    const passThrough = new PassThrough();
-    stream.pipe(passThrough);
-    const chunks = [];
-    for await (const chunk of passThrough) {
-        chunks.push(chunk);
-    }
-    return Buffer.concat(chunks).toString();
-}
+const pty = require('node-pty');
 let CodeExecutionService = class CodeExecutionService {
-    async executeCode(code, language, version) {
-        const volume = await docker.createVolume({
-            Name: `volume_1`,
-            Driver: 'local',
-        });
-        const container = await docker.createContainer({
-            Image: "python:3-slim",
-            Tty: false,
-            Cmd: ['bash', '-c', `
-    cat <<EOF > /app/code.py
-${code}
-EOF
-    python /app/code.py`],
-            HostConfig: {
-                Binds: [`${volume.Name}:/app`],
-            },
-        });
-        await container.start();
-        const logsStream = await container.logs({
-            follow: true,
-            stdout: true,
-            stderr: true,
-        });
-        const logs = await getStreamData(logsStream);
-        console.log(logs);
-        await container.remove();
-        return { output: logs };
+    async createVolume(volumeName) {
+        try {
+            pty.spawn('docker', ['volume', 'create', '--name', volumeName]);
+        }
+        catch {
+            console.log("Couldn't create volume");
+        }
     }
 };
 exports.CodeExecutionService = CodeExecutionService;

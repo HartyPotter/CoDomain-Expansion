@@ -76,7 +76,7 @@ export class CodeExecutionGateway implements OnGatewayConnection, OnGatewayDisco
         */
 
         // open in read-write mode
-        const fileHandle = await open(`/var/lib/docker/volumes/${volume}/_data/code.py`, 'r+');
+        const fileHandle = await open(`${process.env.DOCKER_VOLUMES_PATH}/${volume}/_data/code.py`, 'r+');
         const fileData = await fileHandle.readFile({encoding: 'utf-8'});
 
         const dmp = new DiffMatchPatch();

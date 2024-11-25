@@ -1,13 +1,15 @@
 import { Box, Button, HStack, Text } from "@chakra-ui/react";
 import { Editor } from "@monaco-editor/react";
-import { useRef, useState } from "react";
+import { useRef, useState, useEffect } from "react";
+import { io } from "socket.io-client"; // Import socket.io-client
 import LanguageSelector from "./LanguageSelector";
 import { CODE_SNIPPETS } from "../constants";
-import Output from "./Output";
 import { useNavigate } from "react-router-dom";
 import { Helmet } from 'react-helmet';
 import { useAuth } from '../contexts/AuthContext';
 import TerminalComponent from './Terminal';
+import DiffMatchPatch from 'diff-match-patch';
+
 
 const CodeEditor = () => {
     const navigate = useNavigate();
@@ -15,9 +17,25 @@ const CodeEditor = () => {
     const editorRef = useRef()
     const [value, setValue] = useState("")
     const [language, setLanguage] = useState('javascript')
+    const [socket, setSocket] = useState(null); // State to hold socket
     const { volume, image } = location.state || {};
+    const dmp = new DiffMatchPatch();
+
+    useEffect(() => {
+        // Initialize socket when component mounts
+        const newSocket = io('http://localhost:3001/code-execution');
+        setSocket(newSocket);
+
+        // Cleanup socket on component unmount
+        return () => {
+            if (newSocket) {
+                newSocket.disconnect();
+            }
+        };
+    }, []);
 
     const onMount = (editor) => {
+        setValue(CODE_SNIPPETS[language]);
         editorRef.current = editor;
         editor.focus();
     };
@@ -29,9 +47,16 @@ const CodeEditor = () => {
 
     const handleLogout = async () => {
         const token = localStorage.getItem('accessToken');
-        console.log(token)
         logout(token);
         navigate("/");
+    }
+
+    const onChange = async (newCode) => {
+        // console.log(value);
+        const diffs = dmp.patch_make(value, newCode);
+        // console.log(diffs);
+        socket.emit('saveFileData', diffs);
+        setValue(newCode);
     }
 
     if (!user) {
@@ -60,10 +85,10 @@ const CodeEditor = () => {
                         defaultValue={CODE_SNIPPETS[language]}
                         onMount={onMount}
                         value={value}
-                        onChange={(value) => setValue(value)} />
+                        onChange={(value) => onChange(value)} />
                     </Box>
                     <Box w="50%">
-                        <TerminalComponent volume={volume} image={image} code={value}/>
+                        <TerminalComponent volume={volume} image={image} code={value} socket={socket}/>
                     </Box>
                 </HStack>
             </Box>

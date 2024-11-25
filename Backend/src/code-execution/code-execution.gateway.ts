@@ -68,12 +68,13 @@ export class CodeExecutionGateway implements OnGatewayConnection, OnGatewayDisco
         proc.write(inputData);
     });
 
-    client.on('saveFileData', async (newData) => {
+    client.on('saveFileData', async (diffs) => {
 
         /*
           This requires read and write permissions on the docker volume (/var/lib/docker/volumes/{volumeName})
           Needs to be changed
         */
+      //  console.log("Diffs: ", diffs[0].diffs);
 
         // open in read-write mode
         const fileHandle = await open(`${process.env.DOCKER_VOLUMES_PATH}/${volume}/_data/code.py`, 'r+');
@@ -82,11 +83,11 @@ export class CodeExecutionGateway implements OnGatewayConnection, OnGatewayDisco
         const dmp = new DiffMatchPatch();
 
         // Compute file differences
-        const diff = dmp.patch_make(fileData, newData);
+        // const diff = dmp.patch_make(fileData, newData);
         // console.log(diff);
 
         // Compute new text after applying patches
-        const [newText, [ success ]] = dmp.patch_apply(diff, fileData);
+        const [newText, [ success ]] = dmp.patch_apply(diffs, fileData);
 
         if (success) {
           // write data to file

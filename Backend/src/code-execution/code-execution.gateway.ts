@@ -3,6 +3,7 @@ import { Injectable } from '@nestjs/common';
 import { Server, Socket } from 'socket.io';
 import * as pty from 'node-pty';
 import { open } from 'node:fs/promises';
+import { FilesystemService } from 'src/filesystem/filesystem.service';
 const DiffMatchPatch = require('diff-match-patch');
 
 const code = '\ndef greet(name):\n print("Hello, " + name + "!")\n\ngreet("Alex")\n';
@@ -15,6 +16,7 @@ export class CodeExecutionGateway implements OnGatewayConnection, OnGatewayDisco
   @WebSocketServer() server: Server;
 
   private clientProcesses = new Map<string, any>();
+  constructor(private readonly filesystemService: FilesystemService) {}
 
 
   handleConnection(client: Socket) {
@@ -90,39 +92,8 @@ export class CodeExecutionGateway implements OnGatewayConnection, OnGatewayDisco
     });
 
     client.on('saveFileData', async (diffs) => {
-
-       console.log("Diffs: ", diffs[0].diffs);
-
-        // open in read-write mode
-        console.log(process.getuid());
-        const fileHandle = await open(`${process.env.DOCKER_VOLUMES_PATH}/${volumeName}/code.py`, 'r+');
-        const fileData = await fileHandle.readFile({encoding: 'utf-8'});
-
-        const dmp = new DiffMatchPatch();
-
-        // Compute file differences
-        // const diff = dmp.patch_make(fileData, newData);
-        // console.log(diff);
-
-        // Compute new text after applying patches
-        const [newText, [ success ]] = dmp.patch_apply(diffs, fileData);
-
-        if (success) {
-          // write data to file
-          await fileHandle.truncate(0); // Clear existing content
-          await fileHandle.write(newText, 0, 'utf-8'); // Write the updated content
-          console.log("File updated successfully.");
-        }
-        else {
-          console.error("Failed to apply patch.");
-        }
-
-        // console.log("Code.py Data:", fileData);
-        // console.log(newData);
-
-        // Close Stream
-        await fileHandle.close();
-        // console.log("Edited Data:", newData);
+        const filePath = `${process.env.DOCKER_VOLUMES_PATH}/${volumeName}/code.py`;
+        await this.filesystemService.updateFile(filePath, diffs);;
     });
 
     const exit = proc.onExit(() => {

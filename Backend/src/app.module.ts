@@ -7,11 +7,13 @@ import { RedisService } from './redis/redis.service';
 import { ProjectsModule } from "./projects/projects.module";
 import { CodeExecutionController } from "./code-execution/code-execution.controller";
 import { CodeExecutionService } from "./code-execution/code-execution.service";
+import { FilesystemService } from './filesystem/filesystem.service';
+import { FilesystemModule } from './filesystem/filesystem.module';
 
 
 @Module({
-    imports: [AuthModule, DatabaseModule, UsersModule, CodeExecutionModule, ProjectsModule],
+    imports: [AuthModule, DatabaseModule, UsersModule, CodeExecutionModule, ProjectsModule, FilesystemModule],
     controllers: [CodeExecutionController],
-    providers: [CodeExecutionService, RedisService],
+    providers: [CodeExecutionService, RedisService, FilesystemService],
 })
 export class AppModule {}

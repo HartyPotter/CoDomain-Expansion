@@ -32,15 +32,20 @@ export class CodeExecutionGateway implements OnGatewayConnection, OnGatewayDisco
 
   @SubscribeMessage('start')
   handleStart(
-    @MessageBody() data: { volume: string; image: string },
+    @MessageBody() data: { volumeName: string; image: string },
     @ConnectedSocket() client: Socket,
   ) {
-    const { volume, image } = data;
+    console.log(data);
+    const { volumeName, image } = data;
 
-    // console.log("VOLUME NAEM: ", volume);
+    // console.log("VOLUME NAEM: ", volumeName);
 
     // Spawn Docker container with the specified volume and image
-    const proc = pty.spawn('docker', ['run', "--rm", "-ti", "-v", `${volume}:/app`, "python:3.9-slim", "bash"], {})
+    // const volumeDir = `${process.env.DOCKER_VOLUMES_PATH}/${volumeName}`;
+    // const proc = pty.spawn('docker', ['run', "--rm", "-ti", "-v", `${volumeDir}:/app`, "python:3.9-slim", "bash"], {})
+
+    // Spawn Docker container with the specified volume and image
+    const proc = pty.spawn('docker', ['run', "--rm", "-ti", "-v", `${volumeName}:/app`, "python:3.9-slim", "bash"], {})
 
     const executeSilentCommand = (command: string) => {
         isOutputEnabled = false;
@@ -52,7 +57,8 @@ export class CodeExecutionGateway implements OnGatewayConnection, OnGatewayDisco
     }
 
     setTimeout(() => {
-        executeSilentCommand(`echo -e '${code}' >> /app/code.py \r`);
+        executeSilentCommand(`echo -e '${code}' > /app/code.py \r`);
+        executeSilentCommand(`chmod -R 777 /app/ \r`);
     }, 2000);
 
     // Emit output to the client
@@ -74,10 +80,10 @@ export class CodeExecutionGateway implements OnGatewayConnection, OnGatewayDisco
           This requires read and write permissions on the docker volume (/var/lib/docker/volumes/{volumeName})
           Needs to be changed
         */
-      //  console.log("Diffs: ", diffs[0].diffs);
+       console.log("Diffs: ", diffs[0].diffs);
 
         // open in read-write mode
-        const fileHandle = await open(`${process.env.DOCKER_VOLUMES_PATH}/${volume}/_data/code.py`, 'r+');
+        const fileHandle = await open(`${process.env.DOCKER_VOLUMES_PATH}/${volumeName}/_data/code.py`, 'r+');
         const fileData = await fileHandle.readFile({encoding: 'utf-8'});
 
         const dmp = new DiffMatchPatch();

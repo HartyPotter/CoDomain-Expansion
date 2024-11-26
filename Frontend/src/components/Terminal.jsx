@@ -12,13 +12,12 @@ const TerminalComponent = ({ code, socket}) => {
     const terminalRef = useRef(null);
     const socketRef = useRef(null);
     const fitAddonRef = useRef(null);
-    // console.log(volume, image);
     const volume = state?.volume;
     const image = state?.image;
+    console.log(volume, image);
 
     useEffect(() => {
         if (!socket) return;
-
         const terminal = new Terminal(termOptions);
 
         fitAddonRef.current = new FitAddon();
@@ -34,7 +33,8 @@ const TerminalComponent = ({ code, socket}) => {
 
         socket.on('connect', () => {
             console.log('Connected to WebSocket server');
-            socket.emit('start', { volume, image });
+            console.log('Emitting,' + volume + ' ' + image);
+            socket.emit('start', {volumeName: volume, image});
         });
 
         socket.on('output', (data) => {

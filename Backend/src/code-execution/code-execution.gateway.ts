@@ -19,6 +19,7 @@ export class CodeExecutionGateway implements OnGatewayConnection, OnGatewayDisco
 
   handleConnection(client: Socket) {
     console.log(`Client connected: ${client.id}`);
+    console.log("User running npm start", process.getuid());
   }
 
   handleDisconnect(client: Socket) {
@@ -35,17 +36,31 @@ export class CodeExecutionGateway implements OnGatewayConnection, OnGatewayDisco
     @MessageBody() data: { volumeName: string; image: string },
     @ConnectedSocket() client: Socket,
   ) {
-    console.log(data);
+    // console.log(data);
     const { volumeName, image } = data;
 
     // console.log("VOLUME NAEM: ", volumeName);
 
+    const uid = process.getuid();
+    const gid = process.getgid();
     // Spawn Docker container with the specified volume and image
     // const volumeDir = `${process.env.DOCKER_VOLUMES_PATH}/${volumeName}`;
-    // const proc = pty.spawn('docker', ['run', "--rm", "-ti", "-v", `${volumeDir}:/app`, "python:3.9-slim", "bash"], {})
+
+    // Create Bind Volume from a local directory
+    const proc = pty.spawn('docker', [
+      'run', "--rm", "-ti", 
+      "--user", `${process.getuid()}:${process.getgid()}`,
+      "--mount", `type=bind,source=${process.env.DOCKER_VOLUMES_PATH}/${volumeName},target=/app`,
+      "python:3.9-slim", 
+      "bash"], {})
+
 
     // Spawn Docker container with the specified volume and image
-    const proc = pty.spawn('docker', ['run', "--rm", "-ti", "-v", `${volumeName}:/app`, "python:3.9-slim", "bash"], {})
+    // const proc = pty.spawn('docker', ['run', 
+      // "--rm", "-ti", 
+      // "--user", `${uid}`,
+      // "-v", `${volumeName}:/app`, 
+      // "custom-python", "bash"], {})
 
     const executeSilentCommand = (command: string) => {
         isOutputEnabled = false;
@@ -58,8 +73,8 @@ export class CodeExecutionGateway implements OnGatewayConnection, OnGatewayDisco
 
     setTimeout(() => {
         executeSilentCommand(`echo -e '${code}' > /app/code.py \r`);
-        executeSilentCommand(`chmod -R 777 /app/ \r`);
-    }, 2000);
+        // executeSilentCommand(`chmod -R 777 /app/ \r`);
+    }, 3000);
 
     // Emit output to the client
     const onData = proc.onData((output) => {
@@ -76,14 +91,11 @@ export class CodeExecutionGateway implements OnGatewayConnection, OnGatewayDisco
 
     client.on('saveFileData', async (diffs) => {
 
-        /*
-          This requires read and write permissions on the docker volume (/var/lib/docker/volumes/{volumeName})
-          Needs to be changed
-        */
        console.log("Diffs: ", diffs[0].diffs);
 
         // open in read-write mode
-        const fileHandle = await open(`${process.env.DOCKER_VOLUMES_PATH}/${volumeName}/_data/code.py`, 'r+');
+        console.log(process.getuid());
+        const fileHandle = await open(`${process.env.DOCKER_VOLUMES_PATH}/${volumeName}/code.py`, 'r+');
         const fileData = await fileHandle.readFile({encoding: 'utf-8'});
 
         const dmp = new DiffMatchPatch();

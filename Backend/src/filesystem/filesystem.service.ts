@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { File } from './file.interface'
-import { open, writeFile, mkdir, readFile, unlink} from 'node:fs/promises';
+import { open, writeFile, mkdir, readFile, unlink, readdir } from 'node:fs/promises';
 import { rmSync } from 'node:fs';
 const DiffMatchPatch = require('diff-match-patch');
 
@@ -37,6 +37,21 @@ export class FilesystemService {
         } 
         catch (err) {
             console.error('Error reading file:', err);
+            throw err;
+        }
+    }
+
+    async readDir(path: string): Promise<File[]> {
+        try {
+            const structure = await readdir(path, { withFileTypes: true });
+            return structure.map(file => ({
+                type: file.isFile() ? 'file' : 'dir',
+                name: file.name,
+                path: file.parentPath + '/' + file.name
+            }));
+        }
+        catch (err) {
+            console.error('Error reading directory:', err);
             throw err;
         }
     }

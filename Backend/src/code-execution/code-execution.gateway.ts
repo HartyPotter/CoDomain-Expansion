@@ -91,9 +91,9 @@ export class CodeExecutionGateway implements OnGatewayConnection, OnGatewayDisco
         proc.write(inputData);
     });
 
-    client.on('saveFileData', async (diffs) => {
+    client.on('updateFileData', async (diffs) => {
         const filePath = `${process.env.DOCKER_VOLUMES_PATH}/${volumeName}/code.py`;
-        await this.filesystemService.updateFile(filePath, diffs);;
+        await this.filesystemService.updateFile(filePath, diffs);
     });
 
     const exit = proc.onExit(() => {

@@ -55,7 +55,7 @@ const CodeEditor = () => {
         // console.log(value);
         const diffs = dmp.patch_make(value, newCode);
         // console.log(diffs);
-        socket.emit('saveFileData', diffs);
+        socket.emit('updateFileData', diffs);
         setValue(newCode);
     }
 

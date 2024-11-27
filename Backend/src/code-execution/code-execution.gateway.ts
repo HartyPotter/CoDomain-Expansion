@@ -2,9 +2,7 @@ import { WebSocketGateway, WebSocketServer, OnGatewayConnection, OnGatewayDiscon
 import { Injectable } from '@nestjs/common';
 import { Server, Socket } from 'socket.io';
 import * as pty from 'node-pty';
-import { open } from 'node:fs/promises';
 import { FilesystemService } from 'src/filesystem/filesystem.service';
-const DiffMatchPatch = require('diff-match-patch');
 
 const code = '\ndef greet(name):\n print("Hello, " + name + "!")\n\ngreet("Alex")\n';
 let isOutputEnabled = true;
@@ -21,7 +19,7 @@ export class CodeExecutionGateway implements OnGatewayConnection, OnGatewayDisco
   constructor(private readonly filesystemService: FilesystemService) {}
 
 
-  handleConnection(client: Socket) {
+  async handleConnection(client: Socket)  {
     const volumeName = client.handshake.query.volumeName as string;
     const image = client.handshake.query.image as string;
     this.volumeNames.set(client.id, volumeName);
@@ -37,9 +35,10 @@ export class CodeExecutionGateway implements OnGatewayConnection, OnGatewayDisco
     this.clientProcesses.set(client.id, proc);
 
     console.log(`Client connected: ${client.id} with volume ${volumeName} and image ${image}`);
-    // client.emit('connected', {
-    //   mainFolderContent: await this.filesystemService.getMainFolderContent(),
-    // });
+
+    client.emit('connected', {
+      mainDirContent: await this.filesystemService.readDir(`${process.env.DOCKER_VOLUMES_PATH}/${volumeName}`),
+    });
   }
 
   handleDisconnect(client: Socket) {
@@ -53,11 +52,11 @@ export class CodeExecutionGateway implements OnGatewayConnection, OnGatewayDisco
 
   @SubscribeMessage('start')
   handleStart(
-    @MessageBody() data: { volumeName: string; image: string },
     @ConnectedSocket() client: Socket,
   ) {
     // console.log(data);
-    const { volumeName, image } = data;
+    const volumeName = this.volumeNames.get(client.id);
+    const image = this.images.get(client.id);
 
     // console.log("VOLUME NAEM: ", volumeName);
 

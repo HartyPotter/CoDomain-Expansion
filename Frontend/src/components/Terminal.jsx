@@ -31,10 +31,11 @@ const TerminalComponent = ({ code, socket}) => {
 
         socketRef.current = socket;
 
+        // I don't understand this part
+        // When does the backend send this 'connect' event?
         socket.on('connect', () => {
             console.log('Connected to WebSocket server');
-            console.log('Emitting,' + volume + ' ' + image);
-            socket.emit('start', {volumeName: volume, image});
+            socket.emit('start');
         });
 
         socket.on('output', (data) => {

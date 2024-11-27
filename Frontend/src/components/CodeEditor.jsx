@@ -4,7 +4,7 @@ import { useRef, useState, useEffect } from "react";
 import { io } from "socket.io-client"; // Import socket.io-client
 import LanguageSelector from "./LanguageSelector";
 import { CODE_SNIPPETS } from "../constants";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { Helmet } from 'react-helmet';
 import { useAuth } from '../contexts/AuthContext';
 import TerminalComponent from './Terminal';
@@ -14,16 +14,27 @@ import DiffMatchPatch from 'diff-match-patch';
 const CodeEditor = () => {
     const navigate = useNavigate();
     const { user, logout } = useAuth();
+    const { state } = useLocation(); // Get the state from the location
     const editorRef = useRef()
     const [value, setValue] = useState("")
     const [language, setLanguage] = useState('javascript')
     const [socket, setSocket] = useState(null); // State to hold socket
-    const { volume, image } = location.state || {};
+    // const { volume, image } = location.state || {};
+    const volume = state?.volume;
+    const image = state?.image;
     const dmp = new DiffMatchPatch();
+
+    console.log(volume, image);
 
     useEffect(() => {
         // Initialize socket when component mounts
-        const newSocket = io('http://localhost:3001/code-execution');
+        
+        const newSocket = io('http://localhost:3001/code-execution', {
+            query: {
+                volumeName: volume,
+                image: image
+            }
+        });
         setSocket(newSocket);
 
         // Cleanup socket on component unmount

@@ -16,12 +16,30 @@ export class CodeExecutionGateway implements OnGatewayConnection, OnGatewayDisco
   @WebSocketServer() server: Server;
 
   private clientProcesses = new Map<string, any>();
+  private volumeNames = new Map<string, string>();
+  private images = new Map<string, string>();
   constructor(private readonly filesystemService: FilesystemService) {}
 
 
   handleConnection(client: Socket) {
-    console.log(`Client connected: ${client.id}`);
-    console.log("User running npm start", process.getuid());
+    const volumeName = client.handshake.query.volumeName as string;
+    const image = client.handshake.query.image as string;
+    this.volumeNames.set(client.id, volumeName);
+    this.images.set(client.id, image);
+
+    const proc = pty.spawn('docker', [
+      'run', "--rm", "-ti", 
+      "--user", `${process.getuid()}:${process.getgid()}`,
+      "--mount", `type=bind,source=${process.env.DOCKER_VOLUMES_PATH}/${volumeName},target=/app`,
+      "python:3.9-slim", 
+      "bash"], {})
+
+    this.clientProcesses.set(client.id, proc);
+
+    console.log(`Client connected: ${client.id} with volume ${volumeName} and image ${image}`);
+    // client.emit('connected', {
+    //   mainFolderContent: await this.filesystemService.getMainFolderContent(),
+    // });
   }
 
   handleDisconnect(client: Socket) {
@@ -43,18 +61,12 @@ export class CodeExecutionGateway implements OnGatewayConnection, OnGatewayDisco
 
     // console.log("VOLUME NAEM: ", volumeName);
 
-    const uid = process.getuid();
-    const gid = process.getgid();
+    const proc = this.clientProcesses.get(client.id);
     // Spawn Docker container with the specified volume and image
     // const volumeDir = `${process.env.DOCKER_VOLUMES_PATH}/${volumeName}`;
 
     // Create Bind Volume from a local directory
-    const proc = pty.spawn('docker', [
-      'run', "--rm", "-ti", 
-      "--user", `${process.getuid()}:${process.getgid()}`,
-      "--mount", `type=bind,source=${process.env.DOCKER_VOLUMES_PATH}/${volumeName},target=/app`,
-      "python:3.9-slim", 
-      "bash"], {})
+    
 
 
     // Spawn Docker container with the specified volume and image

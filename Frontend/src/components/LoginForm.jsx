@@ -35,8 +35,6 @@ function LoginForm() {
             const response = await axios.post("http://localhost:3001/auth/login",
             { username, password }, {withCredentials: true });
             if (response.status === 200) {
-                console.log("SUCESSSSSSSS");
-                console.log("Cooooookieeee:", document.cookie);
                 login(response.data);
                 setSuccessMessage('Logged in successfully, redirecting...');
                 setErrorMessage('');

@@ -71,7 +71,7 @@ function LandingPage() {
       // { withCredentials: true });
 
       // const websocketUrl = response.data.websocketUrl;
-      navigate('/code-editor', { state: { volume, image } });
+      navigate('/coding-page', { state: { volume, image } });
   }
 
   useEffect(() => {
@@ -112,7 +112,7 @@ function LandingPage() {
             </Text>
             <HStack spacing={4}>
               {user ? (
-                <Button colorScheme="blue" size="lg" onClick={() => navigate('/code-editor')}>Go to Code Editor</Button>
+                <Button colorScheme="blue" size="lg" onClick={() => navigate('/coding-page')}>Go to Code Editor</Button>
               ) : (
                 <>
                   <Button colorScheme="blue" size="lg" onClick={() => navigate('/register')}>Get Started</Button>

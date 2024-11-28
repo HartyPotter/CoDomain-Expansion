@@ -11,7 +11,6 @@ export class FilesystemService {
         try {
             const filePath = `${path}/${name}`;
             await writeFile(filePath, content);
-            console.log(`File created at: ${filePath}`);
         } 
         catch (err) {
             console.error('Error creating file:', err);
@@ -22,7 +21,6 @@ export class FilesystemService {
         try {
             const dirPath = `${path}/${name}`;
             await mkdir(dirPath, { recursive: true });
-            console.log(`Directory created at: ${dirPath}`);
         } 
         catch (err) {
             console.error('Error creating directory:', err);
@@ -32,7 +30,6 @@ export class FilesystemService {
     async readFile(filePath: string): Promise<string> {
         try {
             const content = await readFile(filePath, 'utf-8');
-            console.log(`File read from: ${filePath}`);
             return content;
         } 
         catch (err) {
@@ -47,7 +44,7 @@ export class FilesystemService {
             return structure.map(file => ({
                 type: file.isFile() ? 'file' : 'dir',
                 name: file.name,
-                path: file.parentPath + '/' + file.name
+                path: `${file.parentPath}/${file.name}`
             }));
         }
         catch (err) {
@@ -96,7 +93,6 @@ export class FilesystemService {
     async deleteDir(dirPath: string) {
         try {
             await rmSync(dirPath, {recursive: true, force: true});
-            console.log(`Directory deleted at: ${dirPath}`);
         } 
         catch (err) {
             console.error('Error deleting directory:', err);

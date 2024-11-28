@@ -34,11 +34,15 @@ export class CodeExecutionGateway implements OnGatewayConnection, OnGatewayDisco
 
     this.clientProcesses.set(client.id, proc);
 
-    console.log(`Client connected: ${client.id} with volume ${volumeName} and image ${image}`);
-
-    client.emit('connected', {
-      mainDirContent: await this.filesystemService.readDir(`${process.env.DOCKER_VOLUMES_PATH}/${volumeName}`),
-    });
+    // console.log(`Client connected: ${client.id} with volume ${volumeName} and image ${image}`);
+    
+    let structure = await this.filesystemService.readDir(`${process.env.DOCKER_VOLUMES_PATH}/${volumeName}`);
+    const prefixPath = `${process.env.DOCKER_VOLUMES_PATH}/`;
+    structure = structure.map(file => ({
+      ...file,
+      path: file.path.replace(prefixPath, '')
+    }));
+    client.emit('connected', structure);
   }
 
   handleDisconnect(client: Socket) {
@@ -57,6 +61,8 @@ export class CodeExecutionGateway implements OnGatewayConnection, OnGatewayDisco
     // console.log(data);
     const volumeName = this.volumeNames.get(client.id);
     const image = this.images.get(client.id);
+
+    const prefixPath = `${process.env.DOCKER_VOLUMES_PATH}/`;
 
     // console.log("VOLUME NAEM: ", volumeName);
 
@@ -84,14 +90,13 @@ export class CodeExecutionGateway implements OnGatewayConnection, OnGatewayDisco
         }, 1000)
     }
 
-    setTimeout(() => {
-        executeSilentCommand(`echo -e '${code}' > /app/code.py \r`);
-        // executeSilentCommand(`chmod -R 777 /app/ \r`);
-    }, 3000);
+    // setTimeout(() => {
+    //     executeSilentCommand(`echo -e '${code}' > /app/code.py \r`);
+    //     // executeSilentCommand(`chmod -R 777 /app/ \r`);
+    // }, 3000);
 
     // Emit output to the client
     const onData = proc.onData((output) => {
-        // console.log("Process Received Data: ", output);
         if (isOutputEnabled) {
           client.emit('output', output);
         }
@@ -100,6 +105,20 @@ export class CodeExecutionGateway implements OnGatewayConnection, OnGatewayDisco
     // Receive input from the client
     client.on('input', (inputData) => {
         proc.write(inputData);
+    });
+
+    client.on("fetchDir", async (dirPath, callback) => {
+        let files = await this.filesystemService.readDir(prefixPath + dirPath);
+        files = files.map(file => ({
+          ...file,
+          path: file.path.replace(prefixPath, '')
+        }));
+        callback(files);
+    });
+
+    client.on("fetchContent", async (filePath, callback) => {
+        const content = await this.filesystemService.readFile(prefixPath + filePath);
+        callback(content);
     });
 
     client.on('updateFileData', async (diffs) => {

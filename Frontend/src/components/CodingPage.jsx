@@ -1,11 +1,9 @@
 import { Box, Button, HStack, Text } from "@chakra-ui/react";
-import { Editor } from "@monaco-editor/react";
+import { Editor } from "./Editor";
 import { useRef, useState, useEffect } from "react";
+import { Type } from './utils/file-manager'
 import { io } from "socket.io-client"; // Import socket.io-client
-import LanguageSelector from "./LanguageSelector";
-import { CODE_SNIPPETS } from "../constants";
 import { useNavigate, useLocation } from "react-router-dom";
-import { Helmet } from 'react-helmet';
 import { useAuth } from '../contexts/AuthContext';
 import TerminalComponent from './Terminal';
 import DiffMatchPatch from 'diff-match-patch';
@@ -42,14 +40,15 @@ const RightPanel = styled.div`
 `;
 
 
-const CodeEditor = () => {
+const CodingPage = () => {
     const navigate = useNavigate();
     const { user, logout } = useAuth();
     const { state } = useLocation(); // Get the state from the location
-    const editorRef = useRef()
-    const [value, setValue] = useState("")
+    const [value, setValue] = useState("");
+    const [loaded, setLoaded] = useState(false);
     const [fileStructure, setFileStructure] = useState([]);
-    const [language, setLanguage] = useState('javascript')
+    const [selectedFile, setSelectedFile] = useState(undefined);
+
     const [socket, setSocket] = useState(null); // State to hold socket
     const volume = state?.volume;
     const image = state?.image;
@@ -77,25 +76,17 @@ const CodeEditor = () => {
     useEffect(() => {
         if (socket) {
             socket.on('connected', (mainDirContent) => {
-                // setLoaded(true);
+                
+                // console.log("Connected to server");
+                setLoaded(true);
                 setFileStructure(mainDirContent);
+                console.log('Connected to WebSocket server');
+                socket.emit('start');
             });
         }
     }, [socket]);
-
-    const onMount = (editor) => {
-        setValue(CODE_SNIPPETS[language]);
-        editorRef.current = editor;
-        editor.focus();
-    };
-
-    // const onSelect = (language) => {
-    //     setLanguage(language);
-    //     setValue(CODE_SNIPPETS[language]);
-    // };
-
     const onSelect = (file) => {
-        if (file.type === 'dir') {
+        if (file.type === Type.DIRECTORY) {
             socket.emit("fetchDir", file.path, (data) => {
                 setFileStructure(prev => {
                     const allFiles = [...prev, ...data];
@@ -104,10 +95,9 @@ const CodeEditor = () => {
                     );
                 });
             });
-
-        } 
+        }
         else {
-            socket.emit("fetchContent", { path: file.path }, (data) => {
+            socket.emit("fetchContent", file.path, (data) => {
                 file.content = data;
                 setSelectedFile(file);
             });
@@ -121,9 +111,7 @@ const CodeEditor = () => {
     }
 
     const onChange = async (newCode) => {
-        // console.log(value);
         const diffs = dmp.patch_make(value, newCode);
-        // console.log(diffs);
         socket.emit('updateFileData', diffs);
         setValue(newCode);
     }
@@ -133,6 +121,10 @@ const CodeEditor = () => {
         return null;
     }
 
+    if (!loaded) {
+        return "Loading...";
+    }
+
     return (
         <Container>
             {/* <ButtonContainer>
@@ -140,55 +132,20 @@ const CodeEditor = () => {
             </ButtonContainer> */}
             <Workspace>
                 <LeftPanel>
-                <Box w="50%">
-                        <LanguageSelector language={language} onSelect={onSelect}/>
-                        <Editor
-                        height="75vh"
-                        theme="vs-dark"
-                        language={language}
-                        defaultValue={CODE_SNIPPETS[language]}
-                        onMount={onMount}
-                        value={value}
-                        onChange={(value) => onChange(value)} />
-                    </Box>
+                    <Editor 
+                    socket={socket} 
+                    selectedFile={selectedFile} 
+                    onSelect={onSelect} 
+                    files={fileStructure}
+                    onChange={onChange}    
+                    />
                 </LeftPanel>
                 <RightPanel>
-                    <Box w="50%">
-                        <TerminalComponent volume={volume} image={image} code={value} socket={socket}/>
-                    </Box>
+                    <TerminalComponent volume={volume} image={image} code={value} socket={socket}/>
                 </RightPanel>
             </Workspace>
         </Container>
-        
-        // <>
-        //     <Helmet>
-        //         <title>Code Editor - CoDom</title>
-        //         <meta name="description" content="Write and execute code online!" />
-        //     </Helmet>
-        //     <Box>
-        //         <HStack justifyContent="space-between" p={4}>
-        //             <Text>Welcome, {user.username}!</Text>
-        //             <Button colorScheme="blue" onClick={handleLogout}>Logout</Button>
-        //         </HStack>
-        //         <HStack spacing={4}>
-        //             <Box w="50%">
-        //                 <LanguageSelector language={language} onSelect={onSelect}/>
-        //                 <Editor
-        //                 height="75vh"
-        //                 theme="vs-dark"
-        //                 language={language}
-        //                 defaultValue={CODE_SNIPPETS[language]}
-        //                 onMount={onMount}
-        //                 value={value}
-        //                 onChange={(value) => onChange(value)} />
-        //             </Box>
-        //             <Box w="50%">
-        //                 <TerminalComponent volume={volume} image={image} code={value} socket={socket}/>
-        //             </Box>
-        //         </HStack>
-        //     </Box>
-        // </>
     )
 }
 
-export default CodeEditor;
+export default CodingPage;

@@ -14,7 +14,6 @@ const TerminalComponent = ({ code, socket}) => {
     const fitAddonRef = useRef(null);
     const volume = state?.volume;
     const image = state?.image;
-    console.log(volume, image);
 
     useEffect(() => {
         if (!socket) return;
@@ -31,13 +30,6 @@ const TerminalComponent = ({ code, socket}) => {
 
         socketRef.current = socket;
 
-        // I don't understand this part
-        // When does the backend send this 'connect' event?
-        socket.on('connect', () => {
-            console.log('Connected to WebSocket server');
-            socket.emit('start');
-        });
-
         socket.on('output', (data) => {
             terminal.write(data);
         });
@@ -48,6 +40,7 @@ const TerminalComponent = ({ code, socket}) => {
 
         return () => {
             terminal.dispose();
+            // socket.disconnect();
         };
     }, [socket, volume, image]);
 
@@ -57,7 +50,7 @@ const TerminalComponent = ({ code, socket}) => {
     // }, [code]);
 
     return (
-        <div style={{ width: '100%', height: '400px' }} ref={terminalRef}></div>
+        <div style={{ width: '200%', height: '400px' }} ref={terminalRef}></div>
     );
 };
 

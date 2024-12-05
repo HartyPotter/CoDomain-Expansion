@@ -2,8 +2,7 @@ import { WebSocketGateway, WebSocketServer, OnGatewayConnection, OnGatewayDiscon
 import { Injectable } from '@nestjs/common';
 import { Server, Socket } from 'socket.io';
 import * as pty from 'node-pty';
-import { open } from 'node:fs/promises';
-const DiffMatchPatch = require('diff-match-patch');
+import { FilesystemService } from 'src/filesystem/filesystem.service';
 
 const code = '\ndef greet(name):\n print("Hello, " + name + "!")\n\ngreet("Alex")\n';
 let isOutputEnabled = true;
@@ -15,10 +14,35 @@ export class CodeExecutionGateway implements OnGatewayConnection, OnGatewayDisco
   @WebSocketServer() server: Server;
 
   private clientProcesses = new Map<string, any>();
+  private volumeNames = new Map<string, string>();
+  private images = new Map<string, string>();
+  constructor(private readonly filesystemService: FilesystemService) {}
 
 
-  handleConnection(client: Socket) {
-    console.log(`Client connected: ${client.id}`);
+  async handleConnection(client: Socket)  {
+    const volumeName = client.handshake.query.volumeName as string;
+    const image = client.handshake.query.image as string;
+    this.volumeNames.set(client.id, volumeName);
+    this.images.set(client.id, image);
+
+    const proc = pty.spawn('docker', [
+      'run', "--rm", "-ti", 
+      "--user", `${process.getuid()}:${process.getgid()}`,
+      "--mount", `type=bind,source=${process.env.DOCKER_VOLUMES_PATH}/${volumeName},target=/app`,
+      "python:3.9-slim", 
+      "bash"], {})
+
+    this.clientProcesses.set(client.id, proc);
+
+    // console.log(`Client connected: ${client.id} with volume ${volumeName} and image ${image}`);
+    
+    let structure = await this.filesystemService.readDir(`${process.env.DOCKER_VOLUMES_PATH}/${volumeName}`);
+    const prefixPath = `${process.env.DOCKER_VOLUMES_PATH}/`;
+    structure = structure.map(file => ({
+      ...file,
+      path: file.path.replace(prefixPath, '')
+    }));
+    client.emit('connected', structure);
   }
 
   handleDisconnect(client: Socket) {
@@ -32,15 +56,30 @@ export class CodeExecutionGateway implements OnGatewayConnection, OnGatewayDisco
 
   @SubscribeMessage('start')
   handleStart(
-    @MessageBody() data: { volume: string; image: string },
     @ConnectedSocket() client: Socket,
   ) {
-    const { volume, image } = data;
+    // console.log(data);
+    const volumeName = this.volumeNames.get(client.id);
+    const image = this.images.get(client.id);
 
-    // console.log("VOLUME NAEM: ", volume);
+    const prefixPath = `${process.env.DOCKER_VOLUMES_PATH}/`;
+
+    // console.log("VOLUME NAEM: ", volumeName);
+
+    const proc = this.clientProcesses.get(client.id);
+    // Spawn Docker container with the specified volume and image
+    // const volumeDir = `${process.env.DOCKER_VOLUMES_PATH}/${volumeName}`;
+
+    // Create Bind Volume from a local directory
+    
+
 
     // Spawn Docker container with the specified volume and image
-    const proc = pty.spawn('docker', ['run', "--rm", "-ti", "-v", `${volume}:/app`, "python:3.9-slim", "bash"], {})
+    // const proc = pty.spawn('docker', ['run', 
+      // "--rm", "-ti", 
+      // "--user", `${uid}`,
+      // "-v", `${volumeName}:/app`, 
+      // "custom-python", "bash"], {})
 
     const executeSilentCommand = (command: string) => {
         isOutputEnabled = false;
@@ -51,13 +90,13 @@ export class CodeExecutionGateway implements OnGatewayConnection, OnGatewayDisco
         }, 1000)
     }
 
-    setTimeout(() => {
-        executeSilentCommand(`echo -e '${code}' >> /app/code.py \r`);
-    }, 2000);
+    // setTimeout(() => {
+    //     executeSilentCommand(`echo -e '${code}' > /app/code.py \r`);
+    //     // executeSilentCommand(`chmod -R 777 /app/ \r`);
+    // }, 3000);
 
     // Emit output to the client
     const onData = proc.onData((output) => {
-        // console.log("Process Received Data: ", output);
         if (isOutputEnabled) {
           client.emit('output', output);
         }
@@ -68,43 +107,34 @@ export class CodeExecutionGateway implements OnGatewayConnection, OnGatewayDisco
         proc.write(inputData);
     });
 
-    client.on('saveFileData', async (newData) => {
-
-        /*
-          This requires read and write permissions on the docker volume (/var/lib/docker/volumes/{volumeName})
-          Needs to be changed
-        */
-
-        // open in read-write mode
-        const fileHandle = await open(`${process.env.DOCKER_VOLUMES_PATH}/${volume}/_data/code.py`, 'r+');
-        const fileData = await fileHandle.readFile({encoding: 'utf-8'});
-
-        const dmp = new DiffMatchPatch();
-
-        // Compute file differences
-        const diff = dmp.patch_make(fileData, newData);
-        // console.log(diff);
-
-        // Compute new text after applying patches
-        const [newText, [ success ]] = dmp.patch_apply(diff, fileData);
-
-        if (success) {
-          // write data to file
-          await fileHandle.truncate(0); // Clear existing content
-          await fileHandle.write(newText, 0, 'utf-8'); // Write the updated content
-          console.log("File updated successfully.");
-        }
-        else {
-          console.error("Failed to apply patch.");
-        }
-
-        // console.log("Code.py Data:", fileData);
-        // console.log(newData);
-
-        // Close Stream
-        await fileHandle.close();
-        // console.log("Edited Data:", newData);
+    client.on("fetchDir", async (dirPath, callback) => {
+        let files = await this.filesystemService.readDir(prefixPath + dirPath);
+        files = files.map(file => ({
+          ...file,
+          path: file.path.replace(prefixPath, '')
+        }));
+        callback(files);
     });
+
+    client.on("fetchContent", async (filePath, callback) => {
+        const content = await this.filesystemService.readFile(prefixPath + filePath);
+        callback(content);
+    });
+
+    client.on('updateFileData', async (diffs, filePath) => {
+        await this.filesystemService.updateFile(prefixPath + filePath, diffs);
+    });
+
+    client.on('createFile', async (name, filePath) => {
+        console.log("Creating file with name ", name, " at path ", prefixPath + filePath);
+        await this.filesystemService.createFile(name, prefixPath + filePath, '');
+        client.emit('fileCreated', name);
+    })
+
+    client.on('createDir', async (name, dirPath) => {
+        await this.filesystemService.createDir(name, prefixPath + dirPath);
+        client.emit('dirCreated', name);
+    })
 
     const exit = proc.onExit(() => {
         console.log("Process exited");

@@ -13,6 +13,7 @@
     "concurrently": "^6.5.1"
   },
   "dependencies": {
+    "@emotion/styled": "^11.13.5",
     "@nestjs/jwt": "^10.2.0",
     "@nestjs/passport": "^10.0.3",
     "@nestjs/platform-socket.io": "^10.4.6",
@@ -20,10 +21,10 @@
     "@prisma/client": "^5.18.0",
     "@xterm/xterm": "^5.5.0",
     "bcryptjs": "^2.4.3",
+    "diff-match-patch": "^1.0.5",
     "dockerode": "^4.0.2",
     "passport-jwt": "^4.0.1",
     "react-router-dom": "^6.26.1",
-    "websocket-stream": "^5.5.2",
-    "ws": "^8.18.0"
+    "websocket-stream": "^5.5.2"
   }
 }

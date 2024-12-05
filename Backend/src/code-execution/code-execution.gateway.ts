@@ -121,10 +121,20 @@ export class CodeExecutionGateway implements OnGatewayConnection, OnGatewayDisco
         callback(content);
     });
 
-    client.on('updateFileData', async (diffs) => {
-        const filePath = `${process.env.DOCKER_VOLUMES_PATH}/${volumeName}/code.py`;
-        await this.filesystemService.updateFile(filePath, diffs);
+    client.on('updateFileData', async (diffs, filePath) => {
+        await this.filesystemService.updateFile(prefixPath + filePath, diffs);
     });
+
+    client.on('createFile', async (name, filePath) => {
+        console.log("Creating file with name ", name, " at path ", prefixPath + filePath);
+        await this.filesystemService.createFile(name, prefixPath + filePath, '');
+        client.emit('fileCreated', name);
+    })
+
+    client.on('createDir', async (name, dirPath) => {
+        await this.filesystemService.createDir(name, prefixPath + dirPath);
+        client.emit('dirCreated', name);
+    })
 
     const exit = proc.onExit(() => {
         console.log("Process exited");

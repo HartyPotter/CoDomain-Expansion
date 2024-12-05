@@ -7,18 +7,23 @@ import { FileTree } from "./utils/file-tree";
 import { Socket } from "socket.io-client";
 
 // credits - https://codesandbox.io/s/monaco-tree-pec7u
+// 
 export const Editor = ({
     files,
     onSelect,
     selectedFile,
     socket,
-    onChange
+    onChange,
+    onCreateFile,
+    onCreateDir
 }: {
     files: RemoteFile[];
     onSelect: (file: File) => void;
     selectedFile: File | undefined;
     socket: Socket;
-    onChange: (value: string) => void;
+    onChange: (value: string | undefined, path : string) => void;
+    onCreateFile: () => void;
+    onCreateDir: () => void;
 }) => {
   const rootDir = useMemo(() => {
     return buildFileTree(files);
@@ -26,6 +31,8 @@ export const Editor = ({
 
   useEffect(() => {
     if (!selectedFile) {
+      // console.log("Selecting first file");
+      // console.log(rootDir);
       onSelect(rootDir.files[0])
     }
   }, [selectedFile])
@@ -38,6 +45,8 @@ export const Editor = ({
             rootDir={rootDir}
             selectedFile={selectedFile}
             onSelect={onSelect}
+            onCreateFile={onCreateFile}
+            onCreateDir={onCreateDir}
           />
         </Sidebar>
         <Code 

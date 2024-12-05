@@ -51,7 +51,8 @@ function LandingPage() {
         }
       );
       await axios.post('http://localhost:3001/execute/volume', {
-        volumeName: response.data.volumeName
+        volumeName: response.data.volumeName,
+        image: response.data.language
       },
       { withCredentials: true });
       
@@ -111,9 +112,7 @@ function LandingPage() {
               {user ? " Start coding now!" : " Sign up to start collaborating today!"}
             </Text>
             <HStack spacing={4}>
-              {user ? (
-                <Button colorScheme="blue" size="lg" onClick={() => navigate('/coding-page')}>Go to Code Editor</Button>
-              ) : (
+              {!user && (
                 <>
                   <Button colorScheme="blue" size="lg" onClick={() => navigate('/register')}>Get Started</Button>
                   <Button variant="outline" colorScheme="blue" size="lg" onClick={() => navigate('/login')}>Login</Button>

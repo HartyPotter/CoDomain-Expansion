@@ -25,7 +25,6 @@
     "dockerode": "^4.0.2",
     "passport-jwt": "^4.0.1",
     "react-router-dom": "^6.26.1",
-    "websocket-stream": "^5.5.2",
-    "ws": "^8.18.0"
+    "websocket-stream": "^5.5.2"
   }
 }

@@ -3,12 +3,13 @@ import Editor from "@monaco-editor/react";
 import { File } from "../utils/file-manager";
 import { Socket } from "socket.io-client";
 
-export const Code = ({ selectedFile, socket, onChange }: { selectedFile: File | undefined, socket: Socket, onChange: (value: string) => void }) => {
+export const Code = ({ selectedFile, socket, onChange }: { selectedFile: File | undefined, socket: Socket, onChange: (value: string | undefined, path : string) => void }) => {
   if (!selectedFile) {
     return <div>No file selected</div>;
   }
 
   const code = selectedFile.content
+  const filePath = selectedFile.path
   let language = selectedFile.name.split('.').pop()
 
   if (language === "js" || language === "jsx")
@@ -18,15 +19,15 @@ export const Code = ({ selectedFile, socket, onChange }: { selectedFile: File | 
   else if (language === "py" )
     language = "python"
 
-    function debounce(func: (value: string) => void, wait: number) {
-      let timeout: number;
-      return (value: string) => {
-        clearTimeout(timeout);
-        setTimeout(() => {
-          func(value);
-        }, wait);
-      };
-    }
+    // function debounce(func: (value: string) => void, wait: number) {
+    //   let timeout: number;
+    //   return (value: string) => {
+    //     clearTimeout(timeout);
+    //     setTimeout(() => {
+    //       func(value);
+    //     }, wait);
+    //   };
+    // }
 
   return (
       <Editor
@@ -34,6 +35,7 @@ export const Code = ({ selectedFile, socket, onChange }: { selectedFile: File | 
         language={language}
         value={code}
         theme="vs-dark"
+        onChange={(value) => onChange(value, filePath)}
       />
   )
 }

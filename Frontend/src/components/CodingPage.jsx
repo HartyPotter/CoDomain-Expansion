@@ -83,9 +83,21 @@ const CodingPage = () => {
                 console.log('Connected to WebSocket server');
                 socket.emit('start');
             });
+
+            socket.on('fileCreated', (newFile) => {
+                console.log("File created: ", newFile);
+                // setFileStructure((prev) => [...prev, newFile]);
+            });
+    
+            socket.on('dirCreated', (newDir) => {
+                console.log("File created: ", newFile);
+                // setFileStructure((prev) => [...prev, newDir]);
+            });
         }
+
     }, [socket]);
     const onSelect = (file) => {
+        console.log("Called onSelect: ", file);
         if (file.type === Type.DIRECTORY) {
             socket.emit("fetchDir", file.path, (data) => {
                 setFileStructure(prev => {
@@ -98,23 +110,47 @@ const CodingPage = () => {
         }
         else {
             socket.emit("fetchContent", file.path, (data) => {
+                // console.log("File content: ", data);
                 file.content = data;
                 setSelectedFile(file);
+                setValue(data);
             });
         }
     };
 
-    const handleLogout = async () => {
-        const token = localStorage.getItem('accessToken');
-        logout(token);
-        navigate("/");
-    }
+    // const handleLogout = async () => {
+    //     const token = localStorage.getItem('accessToken');
+    //     logout(token);
+    //     navigate("/");
+    // }
 
-    const onChange = async (newCode) => {
+    const onChange = async (newCode, path) => {
         const diffs = dmp.patch_make(value, newCode);
-        socket.emit('updateFileData', diffs);
+        socket.emit('updateFileData', diffs, path);
         setValue(newCode);
     }
+
+    const handleCreateFile = () => {
+        const fileName = prompt("Enter the new file name:");
+        if (fileName) {
+            const currentPath = selectedFile.path.slice(0, selectedFile.path.lastIndexOf('/'));
+            socket.emit('createFile',  fileName, currentPath);
+        }
+        else {
+            console.log("No file name entered");
+        }
+    };
+
+    const handleCreateDir = () => {
+        const dirName = prompt("Enter the new directory name:");
+        if (dirName) {
+            const currentPath = selectedFile.path.slice(0, selectedFile.path.lastIndexOf('/'));
+            socket.emit('createDir', dirName, currentPath);
+        }
+        else {
+            console.log("No file name entered");
+        }
+    };
 
     if (!user) {
         navigate('/login');
@@ -137,7 +173,9 @@ const CodingPage = () => {
                     selectedFile={selectedFile} 
                     onSelect={onSelect} 
                     files={fileStructure}
-                    onChange={onChange}    
+                    onChange={onChange}   
+                    onCreateFile={handleCreateFile}
+                    onCreateDir={handleCreateDir} 
                     />
                 </LeftPanel>
                 <RightPanel>

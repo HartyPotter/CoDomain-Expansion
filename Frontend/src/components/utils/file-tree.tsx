@@ -1,5 +1,8 @@
 import React, {useState} from 'react'
+
+
 import {Directory, File, sortDir, sortFile} from "./file-manager";
+import { Button } from "@chakra-ui/react"; // or the appropriate library
 import {getIcon} from "./icon";
 import styled from "@emotion/styled";
 
@@ -7,10 +10,30 @@ interface FileTreeProps {
   rootDir: Directory;   // 根目录
   selectedFile: File | undefined;   // 当前选中文件
   onSelect: (file: File) => void;  // 更改选中时触发事件
+  onCreateFile: () => void;
+  onCreateDir: () => void;
 }
 
+const ButtonContainer = styled.div`
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 10px;
+`;
+
 export const FileTree = (props: FileTreeProps) => {
-  return <SubTree directory={props.rootDir} {...props}/>
+  return (
+    <div>
+        <ButtonContainer>
+            <Button onClick={props.onCreateFile}>Create File</Button>
+            <Button onClick={props.onCreateDir}>Create Directory</Button>
+        </ButtonContainer>
+        <SubTree
+            directory={props.rootDir}
+            selectedFile={props.selectedFile}
+            onSelect={props.onSelect}
+        />
+    </div>
+);
 }
 
 interface SubTreeProps {

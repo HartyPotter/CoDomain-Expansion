@@ -50,7 +50,7 @@ const TerminalComponent = ({ code, socket}) => {
     // }, [code]);
 
     return (
-        <div style={{ width: '200%', height: '400px' }} ref={terminalRef}></div>
+        <div style={{ width: '100%', height: '400px' }} ref={terminalRef}></div>
     );
 };
 

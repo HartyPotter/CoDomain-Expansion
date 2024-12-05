@@ -62,7 +62,7 @@ export class FilesystemService {
 
             // Compute new text after applying patches
             const [newText, [ success ]] = dmp.patch_apply(diffs, fileData);
-
+            
             if (success) {
                 // write data to file
                 await fileHandle.truncate(0); // Clear existing content

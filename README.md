@@ -9,6 +9,7 @@ A comprehensive Cloud-based Integrated Development Environment (IDE) that enable
 - **Cloud-Based Development**:
   - Code from any device with a web browser
   - Multiple projects with isolated Docker container environments
+  - Multi-language programming environments (Nix-powered)
 - **Code Editor**: 
   - Syntax highlighting
   - Integrated file system navigation
@@ -19,7 +20,6 @@ A comprehensive Cloud-based Integrated Development Environment (IDE) that enable
 ## ✨ Upcoming Features
 
 - **Enhanced Language Support**:
-  - Multi-language programming environments (Nix-powered)
   - Intelligent code completion
 - **Collaboration Tools**:
   - Real-time project sharing

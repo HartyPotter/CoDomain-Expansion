@@ -4,7 +4,7 @@ import { Server, Socket } from 'socket.io';
 import * as pty from 'node-pty';
 import { FilesystemService } from 'src/filesystem/filesystem.service';
 
-const code = '\ndef greet(name):\n print("Hello, " + name + "!")\n\ngreet("Alex")\n';
+// const code = '\ndef greet(name):\n print("Hello, " + name + "!")\n\ngreet("Alex")\n';
 let isOutputEnabled = true;
 
 
@@ -27,9 +27,9 @@ export class CodeExecutionGateway implements OnGatewayConnection, OnGatewayDisco
 
     const proc = pty.spawn('docker', [
       'run', "--rm", "-ti", 
-      "--user", `${process.getuid()}:${process.getgid()}`,
+      // "--user", `${process.getuid()}:${process.getgid()}`,
       "--mount", `type=bind,source=${process.env.DOCKER_VOLUMES_PATH}/${volumeName},target=/app`,
-      "python:3.9-slim", 
+      "nixos/nix",
       "bash"], {})
 
     this.clientProcesses.set(client.id, proc);

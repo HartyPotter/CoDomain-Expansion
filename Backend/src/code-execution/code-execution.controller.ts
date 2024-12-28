@@ -10,5 +10,4 @@ export class CodeExecutionController {
       console.log("Will create Volume with name:", volumeName, image)
       await this.codeExecutionService.createVolume(volumeName, image);
   }
-  
 }

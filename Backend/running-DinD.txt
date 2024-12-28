@@ -1,0 +1,149 @@
+ls
+   1 git
+   2 ls
+   3 ls usr/
+   4 cd home/
+   5 ls
+   6 mkdir backend
+   7 ls
+   8 cd backend/
+   9 ls
+  10 cd ..
+  11 ls
+  12 rm backend/
+  13 rm or backend/
+  14 rm -r backend/
+  15 ls
+  16 mkdir Backend
+  17 cd Backend/
+  18 ls
+  19 git clone https://github.com/HartyPotter/CoDomain-Expansion/tree/main/Backend
+  20 ls
+  21 ls -a
+  22 git remote add origin https://github.com/HartyPotter/CoDomain-Expansion/tree/main/
+  23 git remote add origin git@github.com:HartyPotter/CoDomain-Expansion.git
+  24 git remote add origin https://github.com/HartyPotter/CoDomain-Expansion.git
+  25 git init
+  26 git remote add origin https://github.com/HartyPotter/CoDomain-Expansion.git
+  27 git sparse-checkout init --cone
+  28 git sparse-checkout set <path-to-folder>
+  29 git sparse-checkout set Backend
+  30 git pull origin main
+  31 ls
+  32 cd Backend/
+  33 ls
+  34 cd ..
+  35 ls
+  36 rm README.md package-lock.json package
+  37 rm README.md package-lock.json package.json
+  38 ls
+  39 cd Backend/
+  40 ls
+  41 cp * /home/Backend
+  42 cp * -r /home/Backend
+  43 ls
+  44 cd ..
+  45 ls
+  46 rm -r Backend/
+  47 ls
+  48 ls -l
+  49 npm install
+  50 curl -fsSL https://fnm.vercel.app/install | bash
+  51 curl -fsSL https://fnm.vercel.app/install | sh
+  52 apk
+  53 apk add curl
+  54 curl -fsSL https://fnm.vercel.app/install | bash
+  55 curl -fsSL https://fnm.vercel.app/install | sh
+  56 source ~/.bashrc
+  57 source ~/.shrc
+  58 curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.1/install.sh | bash
+  59 curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.1/install.sh | sh
+  60 apk add bash
+  61 bin/bash
+  62 ./bin/bash
+  63 bash
+  64 ls
+  65 nvm install 22
+  66 cd ..
+  67 ls
+  68 brew
+  69 bash
+  70 history
+
+
+
+___________________________________________________________________________________
+1  curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.1/install.sh | bash
+    2  exit
+    3  nvm install 22
+    4  curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.1/install.sh | bash
+    5  nvm install 22
+    6  restart
+    7  exit
+    8  curl -fsSL https://fnm.vercel.app/install | bash
+    9  source ~/.bashrc
+   10  curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.1/install.sh | bash
+   11  export NVM_DIR="$HOME/.nvm"
+   12  nvm install 22
+   13  node -v
+   14  nvm install 22
+   15  exec bash
+   16  nvm install 22
+   17  curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.1/install.sh | bash
+   18  apk add npm
+   19  node -v
+   20  npm -v
+   21  ls
+   22  cd home/
+   23  ls
+   24  cd Backend/
+   25  ls
+   26  ls
+   27  npm install
+   28  apt install -y make python build-essential
+   29  apk add make python build-essential
+   30  apk add make
+   31  apk add python
+   32  apk add python3
+   33  apk add build-essential
+   34  apk add g++
+   35  npm install node-pty
+   36  npm install
+   37  npm run start:prod
+   38  nest build
+   39  npm install nest
+   40  nest build
+   41  npm nest build
+   42  npm run build
+   43  npm install socket.io
+   44  npm run build
+   45  npm install @nestjs/websockets
+   46  npm run build
+   46  npm run build
+   47  npm run start:prod
+   47  npm run start:prod
+   48  cat .env
+   48  cat .env
+   49  nano .env
+   49  nano .env
+   50  apk add nano
+   51  nano .env
+   52  cat .env
+   52  cat .env
+   53  npm run start:prod
+   54  npm install @nestjs/platform-socket.io
+   55  npm run start:prod
+   56  docker volume ls
+   57  docker volume ls
+   58  docker image ls
+   59  dockerd
+   60  dockerd -d
+   61  service dockerd start
+   62  dockerd start
+   63  dockerd --help
+   64  dockerd &
+   65  dockerd &> /dev/null &
+   66  docker volume ls
+   67  dockerd &> /dev/null &
+   68  history
+[2]+  Exit 1                  dockerd &> /dev/null

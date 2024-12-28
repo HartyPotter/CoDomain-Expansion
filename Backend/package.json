@@ -23,6 +23,8 @@
     "@nestjs/common": "^10.0.0",
     "@nestjs/core": "^10.0.0",
     "@nestjs/platform-express": "^10.0.0",
+    "@nestjs/platform-socket.io": "^10.4.15",
+    "@nestjs/websockets": "^10.4.15",
     "@prisma/client": "^5.18.0",
     "axios": "^1.7.4",
     "bcryptjs": "^2.4.3",
@@ -31,12 +33,14 @@
     "diff-match-patch": "^1.0.5",
     "dockerode": "^4.0.2",
     "dotenv": "^16.4.5",
+    "nest": "^0.1.6",
     "node-pty": "^1.0.0",
     "prisma": "^5.18.0",
     "redis": "^4.7.0",
     "reflect-metadata": "^0.2.0",
     "rxjs": "^7.8.1",
-    "simple-dockerode": "0.2.2"
+    "simple-dockerode": "0.2.2",
+    "socket.io": "^4.8.1"
   },
   "devDependencies": {
     "@nestjs/cli": "^10.0.0",

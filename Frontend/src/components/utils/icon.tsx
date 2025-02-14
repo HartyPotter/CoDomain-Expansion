@@ -1,7 +1,7 @@
 import React, {ReactNode} from 'react'
 import { SiHtml5, SiTypescript, SiJson } from "react-icons/si";
 import { IoLogoJavascript, IoLogoHtml5 } from "react-icons/io5";
-import { FaCss3Alt } from "react-icons/fa";
+import { FaCss3Alt, FaPython } from "react-icons/fa";
 import { FcFolder, FcOpenedFolder, FcPicture, FcFile } from "react-icons/fc";
 import { AiFillFileText } from "react-icons/ai";
 import { VscJson } from "react-icons/vsc";
@@ -24,6 +24,7 @@ function getIconHelper() {
   cache.set("png", <BsFiletypePng/>);
   cache.set("jpg", <BsFiletypeJpg/>);
   cache.set("java", <FaJava/>);
+  cache.set("py", <FaPython color="white"/>);
   
   // cache.set("ico", <FcPicture/>);
   cache.set("txt", <FiFileText color="white"/>);

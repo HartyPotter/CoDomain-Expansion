@@ -1,7 +1,8 @@
 import { Controller, Get, Post, Body, Request, HttpCode, HttpStatus, Req, Res, HttpException } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { Public } from './decorators/public.decorator'
-import { Response } from 'express';
+import { Response, Request as ExpressRequest } from 'express';
+import * as cookieParser from 'cookie-parser';
 import { RequestWithUser } from './jwt.strategy'; // Import the RedisUser type
 import { RegisterUserDto } from './dto/register.dto';
 import { LoginUserDto } from './dto/login.dto';
@@ -70,10 +71,9 @@ export class AuthController {
     }
   }
   
-
   @Post('logout')
-  async logout(@Req() req: Request, @Res({ passthrough: true }) res: Response) {
-    const token = req.headers['authorization'].split(' ')[1];
+  async logout(@Req() req: Request & { cookies: { [key: string]: string } }, @Res({ passthrough: true }) res: Response) {
+    const token = req.cookies?.accessToken;
 
 	  try {
 
@@ -88,7 +88,6 @@ export class AuthController {
 
   @Get('profile')
   async getProfile(@Req() req: requestWithUser) {
-    // console.log("HEADERSSSSSS: -------", req.headers);
     return req.user;
   }
 

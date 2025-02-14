@@ -17,8 +17,8 @@ const ProtectedRoute = ({ children }) => {
 
 function App() {
   return (
-    <AuthProvider>
       <Router>
+        <AuthProvider>
         <Routes>
           <Route path="/" element={<LandingPage />} />
           <Route path="/register" element={<RegisterForm />} />
@@ -33,8 +33,8 @@ function App() {
             } 
           />
         </Routes>
+        </AuthProvider>
       </Router>
-    </AuthProvider>
   );
 }
 
